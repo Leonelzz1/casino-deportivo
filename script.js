@@ -1,14 +1,11 @@
-// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.2 (CON PROTECCIÓN ANTI-NULL)
+// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.3 (CON CREAR PARTIDO)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTvM78u1Vwgt2s6T507tWQnvqyLp4xz2r7V1ZZ9hjCgpy9BKLdc9i5Q3DxZALgrBi_/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Limpiamos cualquier sesión potencialmente corrupta al inicio.
     const userJSON = sessionStorage.getItem('user');
     if (userJSON === 'undefined' || userJSON === 'null' || !userJSON) {
         sessionStorage.removeItem('user');
     }
-
-    // 2. Intentamos parsear SÓLO si estamos seguros de que no está corrupto.
     try {
         const userData = JSON.parse(sessionStorage.getItem('user'));
         if (userData && userData.role) {
@@ -21,50 +18,34 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('user');
         showPanel('login-panel');
     }
-    
-    // 3. Añadimos el listener para el formulario de login.
     const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
 });
 
-
-// --- FUNCIÓN PRINCIPAL DE COMUNICACIÓN CON EL BACKEND ---
 async function postData(data) {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            cache: 'no-cache',
-            redirect: 'follow',
-            body: JSON.stringify(data)
-        });
+        const response = await fetch(SCRIPT_URL, { method: 'POST', cache: 'no-cache', redirect: 'follow', body: JSON.stringify(data) });
         const textResponse = await response.text();
         if (!textResponse) throw new Error('Respuesta del servidor vacía.');
         return JSON.parse(textResponse);
     } catch (error) {
         console.error('Error en fetch:', error);
-        return { status: 'error', message: `Error de conexión: ${error.message}. Revisa la URL y la implementación del script.` };
+        return { status: 'error', message: `Error de conexión: ${error.message}.` };
     }
 }
 
-// --- SETUP INICIAL DE PANELES Y NAVEGACIÓN ---
 function initPanel(user) {
     if (user.role === 'Jefe') setupJefePanel();
     else if (user.role === 'Cajero') setupCajeroPanel(user);
     else if (user.role === 'Jugador') setupJugadorPanel(user);
-    
     showPanel(`${user.role.toLowerCase()}-panel`);
 }
 
 function showPanel(panelId) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     const panel = document.getElementById(panelId);
-    if (panel) {
-        panel.classList.add('active');
-    } else {
-        document.getElementById('login-panel').classList.add('active');
-    }
+    if (panel) panel.classList.add('active');
+    else document.getElementById('login-panel').classList.add('active');
 }
 
 function setupNav(panelId, mainContentId) {
@@ -82,10 +63,8 @@ function setupNav(panelId, mainContentId) {
 function showView(mainContentId, viewId) {
     const mainContent = document.getElementById(mainContentId);
     if (!mainContent) return;
-    
     mainContent.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     const viewToShow = mainContent.querySelector(`#${viewId}`);
-    
     if (viewToShow) {
         viewToShow.classList.add('active');
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -99,22 +78,17 @@ function showView(mainContentId, viewId) {
     }
 }
 
-// --- MANEJO DE LOGIN / LOGOUT ---
 async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     mostrarMensaje('login', 'Verificando...', 'loading');
-    
     const result = await postData({ action: 'login', username, password });
-    
-    const loginMsgEl = document.getElementById('login-mensaje');
     if (result.status === 'success' && result.data) {
-        loginMsgEl.style.display = 'none';
         sessionStorage.setItem('user', JSON.stringify(result.data));
         window.location.reload();
     } else {
-        mostrarMensaje('login', result.message || 'Error desconocido al iniciar sesión.', 'error');
+        mostrarMensaje('login', result.message || 'Error desconocido.', 'error');
     }
 }
 
@@ -123,18 +97,9 @@ function handleLogout() {
     window.location.reload();
 }
 
-// --- MODALES (Genéricos) ---
 function showModal(title, contentHTML, onOpen = null) {
     const modalContainer = document.getElementById('modal-container');
-    modalContainer.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>${title}</h3>
-                <button class="close-modal-btn">×</button>
-            </div>
-            <div class="modal-body">${contentHTML}</div>
-        </div>
-    `;
+    modalContainer.innerHTML = `<div class="modal-content"><div class="modal-header"><h3>${title}</h3><button class="close-modal-btn">×</button></div><div class="modal-body">${contentHTML}</div></div>`;
     modalContainer.classList.add('visible');
     modalContainer.querySelector('.close-modal-btn').addEventListener('click', closeModal);
     if (onOpen) onOpen(modalContainer);
@@ -152,10 +117,8 @@ function mostrarMensaje(context, texto, tipo) {
         el.textContent = texto || 'Ocurrió un error.';
         el.className = 'mensaje'; 
         el.style.display = 'block';
-
         if (tipo === 'success') el.classList.add('success');
         else if (tipo === 'error') el.classList.add('error');
-        
         if (tipo !== 'loading' && tipo !== 'error') {
             setTimeout(() => { el.style.display = 'none'; }, 4000);
         }
@@ -168,7 +131,6 @@ function mostrarMensaje(context, texto, tipo) {
 function setupJefePanel() {
     setupNav('jefe-panel', 'jefe-main-content');
     
-    // Listeners con protección
     const logoutBtn = document.querySelector('#jefe-panel .logout-btn');
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
@@ -177,6 +139,10 @@ function setupJefePanel() {
 
     const crearCajeroBtn = document.getElementById('crear-cajero-btn');
     if (crearCajeroBtn) crearCajeroBtn.addEventListener('click', () => showCajeroModal(null));
+
+    // AÑADIDO: Listener para el nuevo botón de crear partido
+    const crearPartidoBtn = document.getElementById('crear-partido-btn');
+    if (crearPartidoBtn) crearPartidoBtn.addEventListener('click', showCrearPartidoModal);
 
     document.querySelectorAll('#vista-historial .filtro-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -189,6 +155,40 @@ function setupJefePanel() {
     showView('jefe-main-content', 'vista-partidos');
     checkPeticionesNotif();
     setInterval(checkPeticionesNotif, 30000);
+}
+
+// AÑADIDO: Función para mostrar el modal de creación de partido
+function showCrearPartidoModal() {
+    const contentHTML = `
+        <form id="partido-form">
+            <input type="text" id="partido-local" placeholder="Equipo Local" required>
+            <input type="text" id="partido-visitante" placeholder="Equipo Visitante" required>
+            <input type="number" id="partido-cuotaL" placeholder="Cuota Local (ej: 1.85)" required step="0.01" min="1">
+            <input type="number" id="partido-cuotaE" placeholder="Cuota Empate (ej: 3.50)" required step="0.01" min="1">
+            <input type="number" id="partido-cuotaV" placeholder="Cuota Visitante (ej: 4.20)" required step="0.01" min="1">
+            <button type="submit">Crear Partido</button>
+        </form>
+    `;
+    showModal('Crear Nuevo Partido', contentHTML, (modal) => {
+        modal.querySelector('#partido-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                local: document.getElementById('partido-local').value,
+                visitante: document.getElementById('partido-visitante').value,
+                cuotaL: Number(document.getElementById('partido-cuotaL').value),
+                cuotaE: Number(document.getElementById('partido-cuotaE').value),
+                cuotaV: Number(document.getElementById('partido-cuotaV').value),
+            };
+            
+            const result = await postData({ action: 'crearPartido', payload });
+            alert(result.message);
+
+            if (result.status === 'success') {
+                closeModal();
+                renderVistaPartidos(); // Refrescar la lista de partidos
+            }
+        });
+    });
 }
 
 async function renderVistaPartidos() {
