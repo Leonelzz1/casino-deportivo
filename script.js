@@ -1,23 +1,32 @@
 // CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 4.1
 const SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUÍ';
 
-// --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
+// --- INICIALIZACIÓN AL CARGAR LA PÁGINA (VERSIÓN CORREGIDA 4.2) ---
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        const userJSON = sessionStorage.getItem('user');
-        if (userJSON) {
+    const userJSON = sessionStorage.getItem('user');
+
+    // La condición más simple y segura: si userJSON es "falsy" (null, undefined, etc.), muestra el login.
+    if (!userJSON) {
+        showPanel('login-panel');
+    } else {
+        try {
             const user = JSON.parse(userJSON);
+            // Verificamos que el objeto parseado sea válido y tenga un rol
             if (user && user.role) {
                 initPanel(user);
-            } else { throw new Error("Sesión corrupta."); }
-        } else {
+            } else {
+                // Si el JSON es válido pero no tiene la estructura esperada
+                throw new Error("Datos de sesión incompletos.");
+            }
+        } catch (error) {
+            // Si JSON.parse falla o la estructura es mala, limpiamos todo y vamos al login.
+            console.error("Error al procesar sesión:", error);
+            sessionStorage.removeItem('user');
             showPanel('login-panel');
         }
-    } catch (error) {
-        console.error("Error al cargar sesión:", error);
-        sessionStorage.removeItem('user');
-        showPanel('login-panel');
     }
+    
+    // El resto de los event listeners se mantienen igual
     document.getElementById('login-form').addEventListener('submit', handleLogin);
 });
 
