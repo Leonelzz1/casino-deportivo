@@ -35,18 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cargar-fichas-form')?.addEventListener('submit', handleCargarFichas);
 });
 
+// VERSIÓN FINAL Y CORRECTA de postData
 async function postData(data) {
     try {
         const response = await fetch(SCRIPT_URL, {
-            method: 'POST', mode: 'no-cors', cache: 'no-cache',
-            redirect: 'follow', body: JSON.stringify(data)
+            method: 'POST',
+            cache: 'no-cache',
+            redirect: 'follow',
+            body: JSON.stringify(data)
         });
         const textResponse = await response.text();
-        if (!textResponse) throw new Error('Respuesta del servidor vacía.');
+        if (!textResponse) {
+            throw new Error('La respuesta del servidor está vacía, posible problema de implementación.');
+        }
         return JSON.parse(textResponse);
     } catch (error) {
         console.error('Error en fetch:', error);
-        return { status: 'error', message: 'Error de conexión. Revisa la consola (F12).' };
+        return { status: 'error', message: 'Error de conexión. Revisa que la URL del script sea correcta y la implementación esté activa.' };
     }
 }
 
