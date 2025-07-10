@@ -1,4 +1,4 @@
-/* ESTILOS COMPLETOS - VERSIÓN 4.1 */
+/* ESTILOS COMPLETOS - VERSIÓN 5.0 (CON PANEL DE JUGADOR REDISEÑADO) */
 :root {
     --bg-dark: #1F2937; --bg-card: #374151; --text-primary: #F9FAFB;
     --text-secondary: #9CA3AF; --accent-primary: #3B82F6; --accent-secondary: #10B981;
@@ -7,14 +7,16 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { background-color: var(--bg-dark); color: var(--text-primary); }
 .panel { display: none; }
+#app-container { max-width: 1400px; margin: 0 auto; }
+#login-panel.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 .panel.active { display: block; }
 
-/* LAYOUT PRINCIPAL */
-#login-panel.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+/* LAYOUT PRINCIPAL (JEFE Y CAJERO) */
 .login-box { background-color: var(--bg-card); padding: 2.5rem; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border-color); }
 .main-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 1.5rem; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); gap: 1rem; }
 .main-nav { display: flex; background-color: var(--bg-card); padding: 0 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border-color); }
-.nav-btn { background: none; border: none; color: var(--text-secondary); padding: 1rem 0.5rem; cursor: pointer; border-bottom: 3px solid transparent; border-radius: 0; margin:0; }
+.nav-btn { background: none; border: none; color: var(--text-secondary); padding: 1rem 0.5rem; cursor: pointer; border-bottom: 3px solid transparent; font-size: 1rem; }
 .nav-btn.active, .nav-btn:hover { color: var(--text-primary); border-bottom-color: var(--accent-primary); }
 .view { display: none; padding: 1.5rem; }
 .view.active { display: block; }
@@ -24,20 +26,19 @@ input, select, button { width: 100%; padding: 0.75rem; margin-bottom: 1rem; bord
 button { background-color: var(--accent-primary); border: none; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
 button:hover { background-color: #2563EB; }
 .header-btn { width: auto; background-color: var(--accent-secondary); }
-.logout-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--error-color); margin-left: auto; }
+.logout-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--error-color); margin-left: auto; margin-bottom: 0; }
 .mensaje { display: none; padding: 0.75rem; margin-top: 1rem; border-radius: 6px; }
 .mensaje.success { display: block; background-color: var(--success-color); color: white; }
 .mensaje.error { display: block; background-color: var(--error-color); color: white; }
-.notif-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 5px; background-color: gray; }
+.notif-indicator { display: inline-block; min-width: 18px; height: 18px; padding: 2px; text-align: center; line-height: 14px; border-radius: 50%; margin-left: 5px; background-color: gray; font-size: 12px; }
 .notif-indicator.green { background-color: var(--success-color); }
 
 /* TABLAS Y LISTAS */
 .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 .data-table th, .data-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
 .data-table th { background-color: var(--bg-dark); }
-.data-table tr:hover { background-color: #4B5563; cursor: pointer; }
 .list-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: var(--bg-dark); border-radius: 6px; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-.item-info { flex-grow: 1; }
+.item-info { flex-grow: 1; display: flex; flex-direction: column; gap: 0.25rem; }
 .item-actions { display: flex; gap: 0.5rem; }
 .item-actions button { width: auto; padding: 0.5rem 0.75rem; }
 
@@ -48,11 +49,97 @@ button:hover { background-color: #2563EB; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 .modal-header h3 { margin: 0; }
 .close-modal-btn { background: none; border: none; font-size: 1.5rem; color: white; cursor: pointer; width: auto; padding: 0; margin: 0; }
-.apostadores-list { margin-top: 1rem; }
-.apostadores-list h4 { margin-bottom: 0.5rem; }
-.apostadores-list p { padding: 0.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; }
-.apostadores-list p:last-child { border: none; }
+.apostadores-list { margin-top: 1rem; } .apostadores-list h4 { margin-bottom: 0.5rem; } .apostadores-list p { padding: 0.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; } .apostadores-list p:last-child { border: none; }
 
 /* NOTIFICACIONES DE USUARIO */
 .user-notifications-container { position: fixed; top: 1rem; right: 1rem; z-index: 300; display: flex; flex-direction: column; gap: 0.5rem; max-width: 350px; }
 .user-alert { background-color: var(--accent-primary); color: white; padding: 1rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+/* =================================================== */
+/*            NUEVOS ESTILOS PANEL DE JUGADOR          */
+/* =================================================== */
+#jugador-panel { padding-bottom: 70px; /* Espacio para la nav móvil */ }
+.jugador-dashboard {
+    display: grid;
+    grid-template-columns: 1fr 380px; /* Columna principal flexible, sidebar fija */
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+.jugador-view { display: block; } /* Por defecto visibles en PC */
+.user-info-box { background-color: var(--bg-card); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+.user-info-box #jugador-nombre { font-size: 1.2rem; font-weight: bold; }
+.saldo-display-v2 { margin-top: 1rem; }
+.saldo-display-v2 span { color: var(--text-secondary); font-size: 0.9rem; }
+.saldo-display-v2 strong { display: block; font-size: 2.2rem; color: var(--accent-secondary); }
+
+#partidos-disponibles-container, #jugador-historial-container { display: flex; flex-direction: column; gap: 1rem; }
+#jugador-historial-container { max-height: 65vh; overflow-y: auto; padding-right: 10px; }
+
+/* NUEVA TARJETA DE PARTIDO */
+.partido-card-v2 { background-color: var(--bg-card); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+.partido-card-v2 h4 { background-color: var(--bg-dark); padding: 1rem; font-size: 1.1rem; }
+.partido-card-v2 .apuesta-form-v2 { padding: 1rem; }
+.cuotas-v2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+.cuotas-v2 input[type="radio"] { display: none; }
+.cuotas-v2 label {
+    display: block; text-align: center; padding: 0.75rem 0.5rem;
+    background-color: var(--bg-dark); border-radius: 6px; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s ease;
+}
+.cuotas-v2 label:hover { border-color: var(--accent-secondary); }
+.cuotas-v2 input[type="radio"]:checked + label { background-color: var(--accent-secondary); color: white; border-color: var(--accent-secondary); }
+.cuotas-v2 span { display: block; font-size: 0.8rem; color: var(--text-secondary); }
+.cuotas-v2 input[type="radio"]:checked + label span { color: white; }
+
+/* NUEVO ITEM DE HISTORIAL */
+.historial-item-v2 {
+    background-color: var(--bg-card); padding: 1rem; border-radius: 6px;
+    border-left: 5px solid var(--text-secondary);
+}
+.historial-item-v2 p { margin: 0.25rem 0; }
+.historial-item-v2 .status { font-weight: bold; }
+.historial-item-v2.ganada { border-left-color: var(--success-color); }
+.historial-item-v2.ganada .status { color: var(--success-color); }
+.historial-item-v2.perdida { border-left-color: var(--error-color); }
+.historial-item-v2.perdida .status { color: var(--error-color); }
+.historial-item-v2.pendiente { border-left-color: var(--accent-primary); }
+.historial-item-v2.pendiente .status { color: var(--accent-primary); }
+
+/* NAVEGACIÓN MÓVIL DEL JUGADOR */
+.jugador-mobile-nav { display: none; /* Oculto en PC */ }
+
+/* =================================================== */
+/*                  DISEÑO RESPONSIVO                  */
+/* =================================================== */
+@media (max-width: 900px) {
+    /* Modo tableta/móvil para el jugador */
+    .jugador-dashboard {
+        grid-template-columns: 1fr; /* Una sola columna */
+        padding: 1rem;
+    }
+    .jugador-view { display: none; } /* Ocultar vistas por defecto */
+    .jugador-view.active { display: block; } /* Mostrar solo la activa */
+    
+    #jugador-sidebar { padding-top: 0; }
+    #jugador-historial-container { max-height: none; }
+
+    .jugador-mobile-nav {
+        display: flex; position: fixed; bottom: 0; left: 0;
+        width: 100%; background-color: var(--bg-card);
+        border-top: 1px solid var(--border-color);
+        z-index: 100;
+    }
+    .mobile-nav-btn {
+        flex: 1; background: none; border: none; color: var(--text-secondary);
+        padding: 1rem 0.5rem; cursor: pointer; margin:0; border-radius: 0;
+        border-top: 3px solid transparent;
+    }
+    .mobile-nav-btn.active { color: var(--text-primary); border-top-color: var(--accent-primary); }
+}
+
+@media (max-width: 480px) {
+    .main-header { flex-direction: column; align-items: flex-start; }
+    .logout-btn { margin-left: 0; margin-top: 1rem; }
+    .login-box { padding: 1.5rem; }
+    .cuotas-v2 { grid-template-columns: 1fr; } /* Las cuotas una debajo de otra */
+}
