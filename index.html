@@ -1,67 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casino Deportivo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Casino Deportivo</h1>
-
+    <div id="app-container">
         <!-- Panel de Login (Visible al inicio) -->
         <div id="login-panel" class="panel active">
-            <h2>Iniciar Sesión</h2>
-            <form id="login-form">
-                <input type="text" id="username" placeholder="Usuario" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <button type="submit">Entrar</button>
-            </form>
-            <p id="login-mensaje" class="mensaje"></p>
+            <div class="login-box">
+                <h1>Casino Deportivo</h1>
+                <form id="login-form">
+                    <input type="text" id="username" placeholder="Usuario" required>
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                    <button type="submit">Entrar</button>
+                </form>
+                <p id="login-mensaje" class="mensaje"></p>
+            </div>
         </div>
 
         <!-- Panel del Jefe (Oculto) -->
         <div id="jefe-panel" class="panel">
-            <h2>Panel del Jefe</h2>
-            <div id="jefe-mensaje" class="mensaje"></div>
-            <h3>Crear Nuevo Partido</h3>
-            <form id="crear-partido-form">
-                <input type="text" id="equipo-local" placeholder="Equipo Local" required>
-                <input type="text" id="equipo-visitante" placeholder="Equipo Visitante" required>
-                <button type="submit">Crear Partido</button>
-            </form>
-            <hr>
-            <h3>Partidos Activos</h3>
-            <div id="jefe-lista-partidos"></div>
+            <header>
+                <h2>Panel del Jefe</h2>
+                <button id="logout-btn-jefe" class="logout-btn">Cerrar Sesión</button>
+            </header>
+            <main>
+                <section class="card">
+                    <h3>Crear Nuevo Partido</h3>
+                    <form id="crear-partido-form">
+                        <input type="text" id="equipo-local" placeholder="Equipo Local" required>
+                        <input type="text" id="equipo-visitante" placeholder="Equipo Visitante" required>
+                        <div class="cuotas-grid">
+                            <input type="number" step="0.01" id="cuota-local" placeholder="Cuota Local (1)" required>
+                            <input type="number" step="0.01" id="cuota-empate" placeholder="Cuota Empate (X)" required>
+                            <input type="number" step="0.01" id="cuota-visitante" placeholder="Cuota Visitante (2)" required>
+                        </div>
+                        <button type="submit">Crear Partido</button>
+                        <p id="jefe-crear-mensaje" class="mensaje"></p>
+                    </form>
+                </section>
+                <section class="card">
+                    <h3>Cerrar Partido</h3>
+                    <form id="cerrar-partido-form">
+                        <select id="select-partido-cerrar" required></select>
+                        <select id="select-resultado" required>
+                            <option value="" disabled selected>Seleccionar resultado...</option>
+                            <option value="Local">Gana Local</option>
+                            <option value="Empate">Empate</option>
+                            <option value="Visitante">Gana Visitante</option>
+                        </select>
+                        <button type="submit">Cerrar y Pagar</button>
+                        <p id="jefe-cerrar-mensaje" class="mensaje"></p>
+                    </form>
+                </section>
+            </main>
         </div>
 
         <!-- Panel del Cajero (Oculto) -->
         <div id="cajero-panel" class="panel">
-            <h2>Panel del Cajero</h2>
-            <div id="cajero-mensaje" class="mensaje"></div>
-            <h3>Crear Nuevo Jugador</h3>
-            <form id="crear-jugador-form">
-                <input type="text" id="nuevo-usuario" placeholder="Nombre de usuario" required>
-                <input type="text" id="nueva-contra" placeholder="Contraseña" required>
-                <input type="number" id="saldo-inicial" placeholder="Saldo inicial" required>
-                <button type="submit">Crear Jugador</button>
-            </form>
+             <header>
+                <h2>Panel del Cajero</h2>
+                <button id="logout-btn-cajero" class="logout-btn">Cerrar Sesión</button>
+            </header>
+            <main>
+                <section class="card">
+                    <h3>Crear Nuevo Jugador</h3>
+                    <form id="crear-jugador-form">
+                        <input type="text" id="nuevo-usuario" placeholder="Nombre de usuario" required>
+                        <input type="text" id="nueva-contra" placeholder="Contraseña" required>
+                        <input type="number" id="saldo-inicial" placeholder="Saldo inicial" required>
+                        <button type="submit">Crear Jugador</button>
+                        <p id="cajero-crear-mensaje" class="mensaje"></p>
+                    </form>
+                </section>
+                <section class="card">
+                    <h3>Cargar Fichas</h3>
+                    <form id="cargar-fichas-form">
+                        <select id="select-mis-jugadores" required></select>
+                        <input type="number" id="monto-carga" placeholder="Monto a cargar" required>
+                        <button type="submit">Cargar Fichas</button>
+                        <p id="cajero-cargar-mensaje" class="mensaje"></p>
+                    </form>
+                </section>
+            </main>
         </div>
 
         <!-- Panel del Jugador (Oculto) -->
         <div id="jugador-panel" class="panel">
-            <h2>Bienvenido, <span id="jugador-nombre"></span>!</h2>
-            <h3>Tu Saldo: <span id="jugador-saldo"></span> monedas</h3>
-            <div id="jugador-mensaje" class="mensaje"></div>
-            <hr>
-            <h3>Partidos Disponibles para Apostar</h3>
-            <div id="jugador-lista-partidos"></div>
+            <header>
+                <h2>Bienvenido, <span id="jugador-nombre"></span></h2>
+                <div class="saldo-display">Saldo: <span id="jugador-saldo"></span></div>
+                <button id="logout-btn-jugador" class="logout-btn">Cerrar Sesión</button>
+            </header>
+            <main>
+                <h3>Partidos Disponibles</h3>
+                <div class="carousel-container">
+                    <div id="partidos-carousel" class="carousel">
+                        <!-- Las tarjetas de partido se insertarán aquí -->
+                    </div>
+                </div>
+                 <p id="jugador-mensaje" class="mensaje"></p>
+            </main>
         </div>
-        
-        <button id="logout-btn" style="display: none;">Cerrar Sesión</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

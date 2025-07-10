@@ -1,92 +1,161 @@
+/* --- VARIABLES Y RESET --- */
+:root {
+    --bg-dark: #1F2937;
+    --bg-card: #374151;
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+    --accent-primary: #3B82F6;
+    --accent-secondary: #10B981;
+    --border-color: #4B5563;
+    --error-color: #EF4444;
+    --success-color: #22C55E;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* --- LAYOUT GENERAL --- */
+.panel { display: none; }
+.panel.active { display: block; }
+
+#login-panel.active {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
 }
-.container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.login-box {
+    background-color: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: 12px;
     width: 90%;
-    max-width: 600px;
+    max-width: 400px;
     text-align: center;
+    border: 1px solid var(--border-color);
 }
-h1, h2, h3 {
-    color: #1c2b4d;
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
 }
-.panel {
-    display: none; /* Ocultos por defecto */
+main {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-.panel.active {
-    display: block; /* Visible el panel activo */
+.card {
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
 }
-input[type="text"], input[type="password"], input[type="number"] {
-    width: calc(100% - 20px);
-    padding: 10px;
+
+/* --- FORMULARIOS Y BOTONES --- */
+input, select, button {
+    width: 100%;
+    padding: 0.75rem;
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-size: 1rem;
 }
 button {
-    width: 100%;
-    padding: 12px;
+    background-color: var(--accent-primary);
     border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 button:hover {
-    background-color: #0056b3;
+    background-color: #2563EB;
 }
-#logout-btn {
-    margin-top: 1rem;
-    background-color: #dc3545;
+.logout-btn {
+    width: auto;
+    padding: 0.5rem 1rem;
+    background-color: var(--error-color);
 }
-#logout-btn:hover {
-    background-color: #c82333;
+.cuotas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
 }
-.mensaje {
-    padding: 10px;
-    margin: 1rem 0;
-    border-radius: 4px;
-    display: none; /* Oculto hasta que se use */
+
+/* --- CARRUSEL DE PARTIDOS --- */
+.carousel-container {
+    overflow-x: auto;
+    padding-bottom: 1rem; /* Espacio para la barra de scroll */
 }
-.mensaje.success {
-    background-color: #d4edda;
-    color: #155724;
-    display: block;
-}
-.mensaje.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    display: block;
-}
-hr {
-    border: none;
-    border-top: 1px solid #eee;
-    margin: 1.5rem 0;
-}
-.partido-item, .apuesta-item {
-    border: 1px solid #eee;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    text-align: left;
-}
-.partido-item h4 {
-    margin: 0 0 10px 0;
-}
-.apuesta-form {
+.carousel {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+}
+.match-card {
+    flex: 0 0 300px; /* No crece, no se encoge, base de 300px */
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.match-info {
+    text-align: center;
+}
+.match-teams {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.bet-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+}
+.bet-btn {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.bet-btn:hover {
+    background-color: #4B5563;
+}
+.bet-type {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.bet-cuota {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.apuesta-monto-input {
+    text-align: center;
+}
+
+/* --- MENSAJES Y RESPONSIVE --- */
+.mensaje { display: none; padding: 0.75rem; margin-top: 1rem; border-radius: 6px; }
+.mensaje.success { display: block; background-color: var(--success-color); color: white; }
+.mensaje.error { display: block; background-color: var(--error-color); color: white; }
+
+@media (max-width: 600px) {
+    header { flex-direction: column; gap: 1rem; }
+    .cuotas-grid { grid-template-columns: 1fr; }
+    .match-card { flex: 0 0 80vw; } /* Ocupa 80% del ancho en móviles */
 }
