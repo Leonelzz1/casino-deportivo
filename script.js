@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cerrar-partido-form')?.addEventListener('submit', handleCerrarPartido);
     document.getElementById('crear-jugador-form')?.addEventListener('submit', handleCrearJugador);
     document.getElementById('cargar-fichas-form')?.addEventListener('submit', handleCargarFichas);
+    document.getElementById('ver-historial-btn')?.addEventListener('click', handleMostrarHistorial);
+    document.getElementById('cerrar-historial-btn')?.addEventListener('click', handleCerrarHistorial);
 });
 
 // VERSIÓN FINAL Y CORRECTA de postData
@@ -247,4 +249,59 @@ function mostrarMensaje(panel, texto, tipo) {
             setTimeout(() => el.style.display = 'none', 5000);
         }
     }
+}
+// --- NUEVAS FUNCIONES PARA EL HISTORIAL ---
+async function handleMostrarHistorial() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const historialSection = document.getElementById('historial-section');
+    const lista = document.getElementById('historial-lista');
+    lista.innerHTML = '<p>Cargando historial...</p>';
+    historialSection.classList.add('visible');
+
+    const result = await postData({ action: 'getHistorial', username: user.username });
+
+    if (result.status === 'success' && result.data) {
+        lista.innerHTML = ''; // Limpiar "Cargando..."
+        if (result.data.length === 0) {
+            lista.innerHTML = '<p>No has realizado ninguna apuesta todavía.</p>';
+            return;
+        }
+
+        result.data.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'historial-item';
+
+            // Determinar clases para las cuotas
+            const cuotaL_class = item.apuestaHecha === 'Local' ? item.status.toLowerCase() : '';
+            const cuotaE_class = item.apuestaHecha === 'Empate' ? item.status.toLowerCase() : '';
+            const cuotaV_class = item.apuestaHecha === 'Visitante' ? item.status.toLowerCase() : '';
+
+            // Formatear ganancia/pérdida
+            const gananciaTexto = item.status === 'Ganada' ? `+${item.ganancia.toFixed(2)}` : `${item.ganancia.toFixed(2)}`;
+
+            itemDiv.innerHTML = `
+                <div class="historial-info">
+                    <h4>${item.partido}</h4>
+                    <p>Apostaste: ${item.monto} monedas</p>
+                    <div class="historial-cuotas">
+                        <span class="cuota ${cuotaL_class}">1: ${item.cuotas.L}</span>
+                        <span class="cuota ${cuotaE_class}">X: ${item.cuotas.E}</span>
+                        <span class="cuota ${cuotaV_class}">2: ${item.cuotas.V}</span>
+                    </div>
+                </div>
+                <div class="historial-resultado">
+                    <span class="status-indicator ${item.status.toLowerCase()}"></span>
+                    <span>${item.status}</span>
+                    ${item.status !== 'Pendiente' ? `<div class="ganancia-valor ${item.status.toLowerCase()}">${gananciaTexto}</div>` : ''}
+                </div>
+            `;
+            lista.appendChild(itemDiv);
+        });
+    } else {
+        lista.innerHTML = `<p class="mensaje error">Error al cargar el historial.</p>`;
+    }
+}
+
+function handleCerrarHistorial() {
+    document.getElementById('historial-section').classList.remove('visible');
 }

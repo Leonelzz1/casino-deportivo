@@ -159,3 +159,93 @@ button:hover {
     .cuotas-grid { grid-template-columns: 1fr; }
     .match-card { flex: 0 0 80vw; } /* Ocupa 80% del ancho en móviles */
 }
+/* --- ESTILOS PARA EL HISTORIAL --- */
+.historial-btn {
+    width: auto;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-secondary);
+    margin: 0 1rem; /* Espacio entre elementos del header */
+}
+.historial-btn:hover {
+    background-color: #059669;
+}
+
+.historial-container {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Superpuesto sobre el contenido */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    padding: 2rem;
+    overflow-y: auto;
+}
+.historial-container.visible {
+    display: block;
+}
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+#cerrar-historial-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+.historial-item {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+.historial-info h4 {
+    margin-bottom: 0.5rem;
+}
+.historial-cuotas {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+.cuota.ganada { color: var(--success-color); font-weight: bold; }
+.cuota.perdida { color: var(--error-color); font-weight: bold; text-decoration: line-through;}
+
+.historial-resultado {
+    text-align: right;
+}
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.status-indicator.ganada { background-color: var(--success-color); }
+.status-indicator.perdida { background-color: var(--error-color); }
+.status-indicator.pendiente { background-color: #FBBF24; } /* Amarillo */
+
+.ganancia-valor {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.ganancia-valor.ganada { color: var(--success-color); }
+.ganancia-valor.perdida { color: var(--error-color); }

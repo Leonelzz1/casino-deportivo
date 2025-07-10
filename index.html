@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -93,6 +93,7 @@
             <header>
                 <h2>Bienvenido, <span id="jugador-nombre"></span></h2>
                 <div class="saldo-display">Saldo: <span id="jugador-saldo"></span></div>
+                <button id="ver-historial-btn" class="historial-btn">Ver Historial</button> <!-- BOTÓN NUEVO -->
                 <button id="logout-btn-jugador" class="logout-btn">Cerrar Sesión</button>
             </header>
             <main>
@@ -104,6 +105,15 @@
                 </div>
                  <p id="jugador-mensaje" class="mensaje"></p>
             </main>
+            <section id="historial-section" class="historial-container">
+                <div class="historial-header">
+                    <h3>Mi Historial de Apuestas</h3>
+                    <button id="cerrar-historial-btn">×</button>
+                </div>
+                <div id="historial-lista">
+                    <!-- Los items del historial se insertarán aquí -->
+                </div>
+            </section>
         </div>
     </div>
     <script src="script.js"></script>
