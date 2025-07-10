@@ -1,251 +1,53 @@
-/* --- VARIABLES Y RESET --- */
 :root {
-    --bg-dark: #1F2937;
-    --bg-card: #374151;
-    --text-primary: #F9FAFB;
-    --text-secondary: #9CA3AF;
-    --accent-primary: #3B82F6;
-    --accent-secondary: #10B981;
-    --border-color: #4B5563;
-    --error-color: #EF4444;
-    --success-color: #22C55E;
+    --bg-dark: #1F2937; --bg-card: #374151; --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF; --accent-primary: #3B82F6; --accent-secondary: #10B981;
+    --border-color: #4B5563; --error-color: #EF4444; --success-color: #22C55E;
 }
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-}
-
-/* --- LAYOUT GENERAL --- */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--bg-dark); color: var(--text-primary); }
 .panel { display: none; }
 .panel.active { display: block; }
-
-#login-panel.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-.login-box {
-    background-color: var(--bg-card);
-    padding: 2.5rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
-}
-main {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-.card {
-    background-color: var(--bg-card);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-}
-
-/* --- FORMULARIOS Y BOTONES --- */
-input, select, button {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    font-size: 1rem;
-}
-button {
-    background-color: var(--accent-primary);
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-button:hover {
-    background-color: #2563EB;
-}
-.logout-btn {
-    width: auto;
-    padding: 0.5rem 1rem;
-    background-color: var(--error-color);
-}
-.cuotas-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-}
-
-/* --- CARRUSEL DE PARTIDOS --- */
-.carousel-container {
-    overflow-x: auto;
-    padding-bottom: 1rem; /* Espacio para la barra de scroll */
-}
-.carousel {
-    display: flex;
-    gap: 1rem;
-    padding: 0.5rem;
-}
-.match-card {
-    flex: 0 0 300px; /* No crece, no se encoge, base de 300px */
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-.match-info {
-    text-align: center;
-}
-.match-teams {
-    font-size: 1.1rem;
-    font-weight: bold;
-}
-.bet-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5rem;
-}
-.bet-btn {
-    background-color: var(--bg-dark);
-    border: 1px solid var(--border-color);
-    padding: 0.75rem 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.bet-btn:hover {
-    background-color: #4B5563;
-}
-.bet-type {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-.bet-cuota {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-.apuesta-monto-input {
-    text-align: center;
-}
-
-/* --- MENSAJES Y RESPONSIVE --- */
+#login-panel.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.login-box { background-color: var(--bg-card); padding: 2.5rem; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border-color); }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 1.5rem; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); gap: 1rem;}
+main { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.card { background-color: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); }
+input, select, button { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-dark); color: var(--text-primary); font-size: 1rem; }
+button { background-color: var(--accent-primary); border: none; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+button:hover { background-color: #2563EB; }
+.logout-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--error-color); margin-left: auto; }
+.cuotas-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.carousel-container { overflow-x: auto; padding-bottom: 1rem; }
+.carousel { display: flex; gap: 1rem; padding: 0.5rem; }
+.match-card { flex: 0 0 300px; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+.match-info { text-align: center; }
+.match-teams { font-size: 1.1rem; font-weight: bold; }
+.bet-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+.bet-btn { background-color: var(--bg-dark); border: 1px solid var(--border-color); padding: 0.75rem 0.5rem; text-align: center; cursor: pointer; transition: background-color 0.2s; }
+.bet-btn:hover { background-color: #4B5563; }
+.bet-type { color: var(--text-secondary); font-size: 0.9rem; }
+.bet-cuota { font-size: 1.2rem; font-weight: bold; }
+.apuesta-monto-input { text-align: center; }
 .mensaje { display: none; padding: 0.75rem; margin-top: 1rem; border-radius: 6px; }
 .mensaje.success { display: block; background-color: var(--success-color); color: white; }
 .mensaje.error { display: block; background-color: var(--error-color); color: white; }
-
-@media (max-width: 600px) {
-    header { flex-direction: column; gap: 1rem; }
-    .cuotas-grid { grid-template-columns: 1fr; }
-    .match-card { flex: 0 0 80vw; } /* Ocupa 80% del ancho en móviles */
-}
-/* --- ESTILOS PARA EL HISTORIAL --- */
-.historial-btn {
-    width: auto;
-    padding: 0.5rem 1rem;
-    background-color: var(--accent-secondary);
-    margin: 0 1rem; /* Espacio entre elementos del header */
-}
-.historial-btn:hover {
-    background-color: #059669;
-}
-
-.historial-container {
-    display: none; /* Oculto por defecto */
-    position: fixed; /* Superpuesto sobre el contenido */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 100;
-    padding: 2rem;
-    overflow-y: auto;
-}
-.historial-container.visible {
-    display: block;
-}
-.historial-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 1rem;
-}
-#cerrar-historial-btn {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    line-height: 1;
-}
-.historial-item {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
-    align-items: center;
-}
-.historial-info h4 {
-    margin-bottom: 0.5rem;
-}
-.historial-cuotas {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
-}
+.historial-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--accent-secondary); margin: 0; }
+.historial-btn:hover { background-color: #059669; }
+.historial-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(31, 41, 55, 0.95); z-index: 100; padding: 1.5rem; overflow-y: auto; }
+.historial-container.visible { display: block; }
+.historial-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+#cerrar-historial-btn { background: none; border: none; color: var(--text-primary); font-size: 2rem; font-weight: bold; cursor: pointer; padding: 0; margin: 0; line-height: 1; width: auto; }
+.historial-item { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; }
+.historial-info h4 { margin-bottom: 0.5rem; }
+.historial-cuotas { display: flex; gap: 1rem; font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
 .cuota.ganada { color: var(--success-color); font-weight: bold; }
-.cuota.perdida { color: var(--error-color); font-weight: bold; text-decoration: line-through;}
-
-.historial-resultado {
-    text-align: right;
-}
-.status-indicator {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-    vertical-align: middle;
-}
+.cuota.perdida { color: var(--error-color); font-weight: bold; text-decoration: line-through; }
+.historial-resultado { text-align: right; }
+.status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
 .status-indicator.ganada { background-color: var(--success-color); }
 .status-indicator.perdida { background-color: var(--error-color); }
-.status-indicator.pendiente { background-color: #FBBF24; } /* Amarillo */
-
-.ganancia-valor {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
+.status-indicator.pendiente { background-color: #FBBF24; }
+.ganancia-valor { font-size: 1.2rem; font-weight: bold; }
 .ganancia-valor.ganada { color: var(--success-color); }
 .ganancia-valor.perdida { color: var(--error-color); }
+@media (max-width: 600px) { .cuotas-grid { grid-template-columns: 1fr; } .match-card { flex: 0 0 80vw; } }
