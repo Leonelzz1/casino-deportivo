@@ -1,5 +1,5 @@
 // PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzh5xySSXogMWMKYmKrjfCbOZ6YigapdN3ma0PXL-7-ih9uMpml8N3GoLArJyB_5FU/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzt1ZAqoQtjbwtf813UUb8YGRoT5ycbs6SCNKGe0IbYYfHDiD5dzBA9I9YXsSlPyTEh/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Referencias a los elementos del DOM
@@ -15,32 +15,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('crear-jugador-form').addEventListener('submit', handleCrearJugador);
     logoutBtn.addEventListener('click', handleLogout);
 
-    // Función para enviar datos al backend
+    // VERSIÓN DEFINITIVA DE postData (PLAN C)
     async function postData(data) {
+        // La URL de tu script que ya tienes configurada
+        const url = SCRIPT_URL;
+
+        // Creamos un objeto de formulario, que a veces es mejor manejado por CORS
+        const formData = new FormData();
+        formData.append('action', data.action);
+        formData.append('username', data.username);
+        formData.append('password', data.password);
+        formData.append('role', data.role);
+        formData.append('local', data.local);
+        formData.append('visitante', data.visitante);
+        formData.append('saldoInicial', data.saldoInicial);
+        formData.append('partidoId', data.partidoId);
+        formData.append('equipo', data.equipo);
+        formData.append('monto', data.monto);
+
         try {
-            const response = await fetch(SCRIPT_URL, {
+            // Hacemos la petición POST
+            // OJO: No usamos headers 'Content-Type': 'application/json' aquí
+            const response = await fetch(url, {
                 method: 'POST',
-                mode: 'no-cors', // Esta línea se puede quitar si el backend está bien configurado
-                cache: 'no-cache',
-                redirect: 'follow', // Sigue la redirección de Google
-                body: JSON.stringify(data)
+                body: JSON.stringify(data), // Volvemos a usar JSON, pero el truco está en el siguiente paso
             });
 
-            // Como la respuesta de Google tras la redirección no es un JSON directo,
-            // tenemos que leerla como texto y luego convertirla.
-            // Esta es la solución más robusta para el problema de CORS con Apps Script.
+            // El truco definitivo: leemos la respuesta como texto plano
             const textResponse = await response.text();
             
-            // A veces la respuesta viene vacía si hay un error de red antes de la redirección.
-            if (!textResponse) {
-            throw new Error('La respuesta del servidor está vacía. Puede ser un problema de red o de la implementación del script.');
-            }
+            // Y luego la convertimos a JSON
+            const jsonResponse = JSON.parse(textResponse);
 
-            return JSON.parse(textResponse);
+            return jsonResponse;
+
         } catch (error) {
-            console.error('Error en fetch:', error);
-            // El error "Unexpected end of JSON input" suele ocurrir aquí si la respuesta es vacía.
-            return { status: 'error', message: 'Error de conexión con el servidor. Revisa la consola (F12) para más detalles.' };
+            console.error('Error detallado en fetch:', error);
+            return { status: 'error', message: 'Error de conexión con el servidor. Revisa la consola.' };
         }
     }
 
