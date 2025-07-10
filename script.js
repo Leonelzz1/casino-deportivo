@@ -1,5 +1,5 @@
 // CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 4.1
-const SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUÍ';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzt1ZAqoQtjbwtf813UUb8YGRoT5ycbs6SCNKGe0IbYYfHDiD5dzBA9I9YXsSlPyTEh/exec';
 
 // --- INICIALIZACIÓN AL CARGAR LA PÁGINA (VERSIÓN CORREGIDA 4.2) ---
 document.addEventListener('DOMContentLoaded', () => {
