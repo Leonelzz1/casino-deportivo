@@ -1,4 +1,4 @@
-// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.1 (PANEL DE JUGADOR REDISEÑADO)
+// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.2 (CON PROTECCIÓN ANTI-NULL)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTvM78u1Vwgt2s6T507tWQnvqyLp4xz2r7V1ZZ9hjCgpy9BKLdc9i5Q3DxZALgrBi_/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,7 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 3. Añadimos el listener para el formulario de login.
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
 });
 
 
@@ -60,7 +63,6 @@ function showPanel(panelId) {
     if (panel) {
         panel.classList.add('active');
     } else {
-        // Fallback: si el panel no existe, muestra el login
         document.getElementById('login-panel').classList.add('active');
     }
 }
@@ -86,7 +88,6 @@ function showView(mainContentId, viewId) {
     
     if (viewToShow) {
         viewToShow.classList.add('active');
-        // Cargar contenido dinámicamente al mostrar la vista
         const user = JSON.parse(sessionStorage.getItem('user'));
         switch (viewId) {
             case 'vista-partidos': renderVistaPartidos(); break;
@@ -111,7 +112,7 @@ async function handleLogin(e) {
     if (result.status === 'success' && result.data) {
         loginMsgEl.style.display = 'none';
         sessionStorage.setItem('user', JSON.stringify(result.data));
-        window.location.reload(); // Recargamos para que la lógica de DOMContentLoaded inicie el panel correcto
+        window.location.reload();
     } else {
         mostrarMensaje('login', result.message || 'Error desconocido al iniciar sesión.', 'error');
     }
@@ -136,7 +137,6 @@ function showModal(title, contentHTML, onOpen = null) {
     `;
     modalContainer.classList.add('visible');
     modalContainer.querySelector('.close-modal-btn').addEventListener('click', closeModal);
-    // Permite ejecutar código JS después de que el modal está en el DOM
     if (onOpen) onOpen(modalContainer);
 }
 
@@ -150,7 +150,7 @@ function mostrarMensaje(context, texto, tipo) {
     const el = document.getElementById(`${context}-mensaje`);
     if(el) {
         el.textContent = texto || 'Ocurrió un error.';
-        el.className = 'mensaje'; // Reset
+        el.className = 'mensaje'; 
         el.style.display = 'block';
 
         if (tipo === 'success') el.classList.add('success');
@@ -167,13 +167,17 @@ function mostrarMensaje(context, texto, tipo) {
 // ==================================================
 function setupJefePanel() {
     setupNav('jefe-panel', 'jefe-main-content');
-    document.querySelector('#jefe-panel .logout-btn').addEventListener('click', handleLogout);
     
-    // Listeners botones de acción
-    document.getElementById('peticiones-btn').addEventListener('click', showPeticionesModal);
-    document.getElementById('crear-cajero-btn').addEventListener('click', () => showCajeroModal(null));
-    
-    // Listeners para filtros de historial
+    // Listeners con protección
+    const logoutBtn = document.querySelector('#jefe-panel .logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+    const peticionesBtn = document.getElementById('peticiones-btn');
+    if (peticionesBtn) peticionesBtn.addEventListener('click', showPeticionesModal);
+
+    const crearCajeroBtn = document.getElementById('crear-cajero-btn');
+    if (crearCajeroBtn) crearCajeroBtn.addEventListener('click', () => showCajeroModal(null));
+
     document.querySelectorAll('#vista-historial .filtro-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('#vista-historial .filtro-btn').forEach(b => b.classList.remove('active'));
@@ -182,91 +186,38 @@ function setupJefePanel() {
         });
     });
     
-    // Vista inicial y notificaciones
     showView('jefe-main-content', 'vista-partidos');
     checkPeticionesNotif();
-    setInterval(checkPeticionesNotif, 30000); // Chequear cada 30s
+    setInterval(checkPeticionesNotif, 30000);
 }
 
 async function renderVistaPartidos() {
     const container = document.getElementById('partidos-table-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando partidos...</p>';
     const result = await postData({ action: 'getPartidosJefe' });
     if (result.status === 'success' && result.data.length > 0) {
-        container.innerHTML = `
-            <table class="data-table">
-                <thead><tr><th>ID</th><th>Local</th><th>Visitante</th><th>Estado</th></tr></thead>
-                <tbody>
-                    ${result.data.map(p => `
-                        <tr data-partido-id="${p.id}" title="Clic para ver detalles">
-                            <td>${p.id}</td>
-                            <td>${p.local}</td>
-                            <td>${p.visitante}</td>
-                            <td>${p.estado}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>`;
+        container.innerHTML = `<table class="data-table"><thead><tr><th>ID</th><th>Local</th><th>Visitante</th><th>Estado</th></tr></thead><tbody>${result.data.map(p => `<tr data-partido-id="${p.id}" title="Clic para ver detalles"><td>${p.id}</td><td>${p.local}</td><td>${p.visitante}</td><td>${p.estado}</td></tr>`).join('')}</tbody></table>`;
         container.querySelectorAll('tr[data-partido-id]').forEach(row => {
             row.addEventListener('click', () => showPartidoModal(row.dataset.partidoId));
         });
-    } else {
-        container.innerHTML = '<p>No hay partidos creados.</p>';
-    }
+    } else { container.innerHTML = '<p>No hay partidos creados.</p>'; }
 }
 
 async function showPartidoModal(partidoId) {
     const result = await postData({ action: 'getDetallesPartido', partidoId });
-    if (result.status !== 'success') {
-        alert(result.message);
-        return;
-    }
+    if (result.status !== 'success') { alert(result.message); return; }
     const partido = result.data;
-    const renderApostadores = (lista, titulo) => `
-        <h4>${titulo} (${lista.length})</h4>
-        ${lista.length > 0 ? lista.map(a => `<p><span>${a.usuario}</span><span>${a.monto.toFixed(2)}</span></p>`).join('') : '<p>Nadie</p>'}`;
-
-    const contentHTML = `
-        <div class="apostadores-list">
-            ${renderApostadores(partido.apuestasLocal, 'Apostaron por Local')}
-        </div>
-        <div class="apostadores-list">
-            ${renderApostadores(partido.apuestasEmpate, 'Apostaron por Empate')}
-        </div>
-        <div class="apostadores-list">
-            ${renderApostadores(partido.apuestasVisitante, 'Apostaron por Visitante')}
-        </div>
-        ${partido.estado === 'Abierto' ? `
-            <div class="modal-actions" style="margin-top: 20px;">
-                <h4>Cerrar Partido</h4>
-                <select id="resultado-final">
-                    <option value="Local">${partido.local} (Gana Local)</option>
-                    <option value="Empate">Empate</option>
-                    <option value="Visitante">${partido.visitante} (Gana Visitante)</option>
-                </select>
-                <button id="cerrar-partido-btn">Confirmar Resultado y Pagar</button>
-                <button id="reembolsar-partido-btn" style="background-color: var(--warning-color); margin-top: 10px;">Suspender y Reembolsar Todo</button>
-            </div>
-        ` : `<p style="margin-top: 20px;">Este partido ya está ${partido.estado}.</p>`}`;
-    
+    const renderApostadores = (lista, titulo) => `<h4>${titulo} (${lista.length})</h4>${lista.length > 0 ? lista.map(a => `<p><span>${a.usuario}</span><span>${a.monto.toFixed(2)}</span></p>`).join('') : '<p>Nadie</p>'}`;
+    const contentHTML = `<div class="apostadores-list">${renderApostadores(partido.apuestasLocal, 'Apostaron por Local')}</div><div class="apostadores-list">${renderApostadores(partido.apuestasEmpate, 'Apostaron por Empate')}</div><div class="apostadores-list">${renderApostadores(partido.apuestasVisitante, 'Apostaron por Visitante')}</div>${partido.estado === 'Abierto' ? `<div class="modal-actions" style="margin-top: 20px;"><h4>Cerrar Partido</h4><select id="resultado-final"><option value="Local">${partido.local} (Gana Local)</option><option value="Empate">Empate</option><option value="Visitante">${partido.visitante} (Gana Visitante)</option></select><button id="cerrar-partido-btn">Confirmar Resultado y Pagar</button><button id="reembolsar-partido-btn" style="background-color: var(--warning-color); margin-top: 10px;">Suspender y Reembolsar Todo</button></div>` : `<p style="margin-top: 20px;">Este partido ya está ${partido.estado}.</p>`}`;
     showModal(`Detalles Partido: ${partido.local} vs ${partido.visitante}`, contentHTML, (modal) => {
         if (partido.estado === 'Abierto') {
             modal.querySelector('#cerrar-partido-btn').addEventListener('click', async () => {
                 const resultado = modal.querySelector('#resultado-final').value;
-                if (confirm(`¿Seguro que quieres cerrar el partido con resultado: ${resultado}? Esta acción es irreversible.`)) {
-                    const res = await postData({ action: 'cerrarPartido', partidoId, resultado });
-                    alert(res.message);
-                    closeModal();
-                    renderVistaPartidos();
-                }
+                if (confirm(`¿Seguro que quieres cerrar el partido con resultado: ${resultado}? Esta acción es irreversible.`)) { const res = await postData({ action: 'cerrarPartido', partidoId, resultado }); alert(res.message); closeModal(); renderVistaPartidos(); }
             });
             modal.querySelector('#reembolsar-partido-btn').addEventListener('click', async () => {
-                 if (confirm(`¿Seguro que quieres SUSPENDER el partido y REEMBOLSAR todas las apuestas? Esta acción es irreversible.`)) {
-                    const res = await postData({ action: 'reembolsarApuestas', partidoId });
-                    alert(res.message);
-                    closeModal();
-                    renderVistaPartidos();
-                }
+                 if (confirm(`¿Seguro que quieres SUSPENDER el partido y REEMBOLSAR todas las apuestas? Esta acción es irreversible.`)) { const res = await postData({ action: 'reembolsarApuestas', partidoId }); alert(res.message); closeModal(); renderVistaPartidos(); }
             });
         }
     });
@@ -274,23 +225,12 @@ async function showPartidoModal(partidoId) {
 
 async function renderVistaCajeros() {
     const container = document.getElementById('cajeros-list-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando cajeros...</p>';
     const result = await postData({ action: 'gestionarCajero', subaction: 'listar' });
 
     if (result.status === 'success' && result.data.length > 0) {
-        container.innerHTML = result.data.map(c => `
-            <div class="list-item">
-                <div class="item-info">
-                    <strong>${c.username}</strong>
-                    <span>Saldo: ${parseFloat(c.saldo || 0).toFixed(2)}</span>
-                </div>
-                <div class="item-actions">
-                    <button class="edit-cajero-btn" data-username="${c.username}">Editar</button>
-                    <button class="fondos-cajero-btn" data-username="${c.username}">Fondos</button>
-                </div>
-            </div>
-        `).join('');
-        // Add event listeners after rendering
+        container.innerHTML = result.data.map(c => `<div class="list-item"><div class="item-info"><strong>${c.username}</strong><span>Saldo: ${parseFloat(c.saldo || 0).toFixed(2)}</span></div><div class="item-actions"><button class="edit-cajero-btn" data-username="${c.username}">Editar</button><button class="fondos-cajero-btn" data-username="${c.username}">Fondos</button></div></div>`).join('');
         document.querySelectorAll('.edit-cajero-btn').forEach(btn => btn.addEventListener('click', (e) => showCajeroModal({username: e.target.dataset.username})));
         document.querySelectorAll('.fondos-cajero-btn').forEach(btn => btn.addEventListener('click', (e) => showFondosModal(e.target.dataset.username)));
     } else {
@@ -301,14 +241,7 @@ async function renderVistaCajeros() {
 function showCajeroModal(cajero) {
     const isEditing = cajero !== null;
     const title = isEditing ? `Editar Cajero: ${cajero.username}` : 'Crear Nuevo Cajero';
-    const contentHTML = `
-        <form id="cajero-form">
-            <input type="text" id="cajero-username-input" placeholder="Nombre de usuario" value="${isEditing ? cajero.username : ''}" required>
-            <input type="text" id="cajero-password-input" placeholder="Nueva Contraseña (o dejar en blanco para no cambiar)" required>
-            ${!isEditing ? '<input type="number" id="cajero-saldo-input" placeholder="Saldo Inicial" value="0" required>' : ''}
-            <button type="submit">${isEditing ? 'Guardar Cambios' : 'Crear Cajero'}</button>
-            <p id="cajero-modal-mensaje" class="mensaje"></p>
-        </form>`;
+    const contentHTML = `<form id="cajero-form"><input type="text" id="cajero-username-input" placeholder="Nombre de usuario" value="${isEditing ? cajero.username : ''}" required><input type="text" id="cajero-password-input" placeholder="Nueva Contraseña (o dejar en blanco para no cambiar)" required>${!isEditing ? '<input type="number" id="cajero-saldo-input" placeholder="Saldo Inicial" value="0" required>' : ''}<button type="submit">${isEditing ? 'Guardar Cambios' : 'Crear Cajero'}</button><p id="cajero-modal-mensaje" class="mensaje"></p></form>`;
     
     showModal(title, contentHTML, (modal) => {
         modal.querySelector('#cajero-form').addEventListener('submit', async (e) => {
@@ -318,7 +251,6 @@ function showCajeroModal(cajero) {
             const msgEl = modal.querySelector('#cajero-modal-mensaje');
             msgEl.textContent = 'Procesando...';
             msgEl.style.display = 'block';
-
             let result;
             if (isEditing) {
                 result = await postData({ action: 'gestionarCajero', subaction: 'editar', payload: { oldUsername: cajero.username, newUsername: usernameInput, newPassword: passwordInput } });
@@ -326,28 +258,13 @@ function showCajeroModal(cajero) {
                 const saldoInput = modal.querySelector('#cajero-saldo-input').value;
                 result = await postData({ action: 'gestionarCajero', subaction: 'crear', payload: { username: usernameInput, password: passwordInput, saldoInicial: Number(saldoInput) } });
             }
-
-            if (result.status === 'success') {
-                closeModal();
-                renderVistaCajeros();
-            } else {
-                msgEl.textContent = result.message;
-                msgEl.className = 'mensaje error';
-            }
+            if (result.status === 'success') { closeModal(); renderVistaCajeros(); } else { msgEl.textContent = result.message; msgEl.className = 'mensaje error'; }
         });
     });
 }
 
 function showFondosModal(username) {
-    const contentHTML = `
-        <form id="fondos-form">
-            <input type="number" id="fondos-monto-input" placeholder="Monto" required step="0.01">
-            <select id="fondos-tipo-select">
-                <option value="añadir">Añadir Fondos</option>
-                <option value="retirar">Retirar Fondos</option>
-            </select>
-            <button type="submit">Confirmar</button>
-        </form>`;
+    const contentHTML = `<form id="fondos-form"><input type="number" id="fondos-monto-input" placeholder="Monto" required step="0.01"><select id="fondos-tipo-select"><option value="añadir">Añadir Fondos</option><option value="retirar">Retirar Fondos</option></select><button type="submit">Confirmar</button></form>`;
     
     showModal(`Gestionar Fondos de ${username}`, contentHTML, (modal) => {
         modal.querySelector('#fondos-form').addEventListener('submit', async (e) => {
@@ -356,51 +273,30 @@ function showFondosModal(username) {
             const tipo = modal.querySelector('#fondos-tipo-select').value;
             const result = await postData({ action: 'gestionarCajero', subaction: 'fondos', payload: { username, monto: Number(monto), tipo } });
             alert(result.message);
-            if (result.status === 'success') {
-                closeModal();
-                renderVistaCajeros();
-            }
+            if (result.status === 'success') { closeModal(); renderVistaCajeros(); }
         });
     });
 }
 
 async function renderVistaHistorialGeneral(filtro) {
     const container = document.getElementById('historial-general-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando historial...</p>';
     const result = await postData({ action: 'getHistorialGeneral', filtro });
     if (result.status === 'success' && result.data.length > 0) {
-        container.innerHTML = `
-            <table class="data-table">
-                <thead><tr><th>ID Apuesta</th><th>Usuario</th><th>Partido ID</th><th>Apostó a</th><th>Monto</th><th>Estado</th></tr></thead>
-                <tbody>
-                    ${result.data.map(a => `
-                        <tr>
-                            <td>${a.id}</td>
-                            <td>${a.usuario}</td>
-                            <td>${a.partidoId}</td>
-                            <td>${a.apuestaA}</td>
-                            <td>${a.monto.toFixed(2)}</td>
-                            <td>${a.estado}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>`;
-    } else {
-        container.innerHTML = '<p>No hay apuestas en esta categoría.</p>';
-    }
+        container.innerHTML = `<table class="data-table"><thead><tr><th>ID Apuesta</th><th>Usuario</th><th>Partido ID</th><th>Apostó a</th><th>Monto</th><th>Estado</th></tr></thead><tbody>${result.data.map(a => `<tr><td>${a.id}</td><td>${a.usuario}</td><td>${a.partidoId}</td><td>${a.apuestaA}</td><td>${a.monto.toFixed(2)}</td><td>${a.estado}</td></tr>`).join('')}</tbody></table>`;
+    } else { container.innerHTML = '<p>No hay apuestas en esta categoría.</p>'; }
 }
 
 async function checkPeticionesNotif() {
     const result = await postData({ action: 'getPeticiones' });
     const notifEl = document.getElementById('peticiones-notif');
-    if (result.status === 'success' && result.data.length > 0) {
-        notifEl.classList.remove('gray');
-        notifEl.classList.add('green');
-        notifEl.textContent = result.data.length;
-    } else {
-        notifEl.classList.add('gray');
-        notifEl.classList.remove('green');
-        notifEl.textContent = '';
+    if (notifEl) {
+        if (result.status === 'success' && result.data.length > 0) {
+            notifEl.classList.remove('gray'); notifEl.classList.add('green'); notifEl.textContent = result.data.length;
+        } else {
+            notifEl.classList.add('gray'); notifEl.classList.remove('green'); notifEl.textContent = '';
+        }
     }
 }
 
@@ -408,37 +304,19 @@ async function showPeticionesModal() {
     const result = await postData({ action: 'getPeticiones' });
     let contentHTML;
     if (result.status === 'success' && result.data.length > 0) {
-        contentHTML = result.data.map(p => `
-            <div class="list-item">
-                <div class="item-info">
-                    <strong>Cajero: ${p.cajero}</strong>
-                    <span>Pide: ${p.monto.toFixed(2)}</span>
-                    <span>Fecha: ${new Date(p.fecha).toLocaleString()}</span>
-                </div>
-                <div class="item-actions">
-                    <button class="peticion-accept-btn" data-id="${p.id}">Aceptar</button>
-                    <button class="peticion-reject-btn" data-id="${p.id}" style="background-color: var(--error-color);">Rechazar</button>
-                </div>
-            </div>`).join('');
+        contentHTML = result.data.map(p => `<div class="list-item"><div class="item-info"><strong>Cajero: ${p.cajero}</strong><span>Pide: ${p.monto.toFixed(2)}</span><span>Fecha: ${new Date(p.fecha).toLocaleString()}</span></div><div class="item-actions"><button class="peticion-accept-btn" data-id="${p.id}">Aceptar</button><button class="peticion-reject-btn" data-id="${p.id}" style="background-color: var(--error-color);">Rechazar</button></div></div>`).join('');
     } else {
         contentHTML = "<p>No hay peticiones pendientes.</p>";
     }
-
     showModal("Peticiones de Fondos de Cajeros", contentHTML, (modal) => {
         modal.querySelectorAll('.peticion-accept-btn').forEach(btn => btn.addEventListener('click', async (e) => {
             const res = await postData({ action: 'responderPeticion', peticionId: e.target.dataset.id, respuesta: 'aceptar' });
-            alert(res.message);
-            closeModal();
-            showPeticionesModal();
-            checkPeticionesNotif();
+            alert(res.message); closeModal(); showPeticionesModal(); checkPeticionesNotif();
         }));
         modal.querySelectorAll('.peticion-reject-btn').forEach(btn => btn.addEventListener('click', async (e) => {
             const motivo = prompt("Motivo del rechazo (opcional):");
             const res = await postData({ action: 'responderPeticion', peticionId: e.target.dataset.id, respuesta: 'rechazar', mensaje: motivo });
-            alert(res.message);
-            closeModal();
-            showPeticionesModal();
-            checkPeticionesNotif();
+            alert(res.message); closeModal(); showPeticionesModal(); checkPeticionesNotif();
         }));
     });
 }
@@ -448,33 +326,31 @@ async function showPeticionesModal() {
 //              LÓGICA DEL PANEL DEL CAJERO
 // ===================================================
 function setupCajeroPanel(user) {
-    document.getElementById('cajero-username').textContent = user.username;
-    document.getElementById('cajero-saldo').textContent = parseFloat(user.balance || 0).toFixed(2);
-    setupNav('cajero-panel', 'cajero-main-content');
-    document.querySelector('#cajero-panel .logout-btn').addEventListener('click', handleLogout);
-    document.getElementById('pedir-monedas-btn').addEventListener('click', () => showPedirMonedasModal(user.username));
+    const usernameEl = document.getElementById('cajero-username');
+    if (usernameEl) usernameEl.textContent = user.username;
     
-    // Vista inicial
+    const saldoEl = document.getElementById('cajero-saldo');
+    if(saldoEl) saldoEl.textContent = parseFloat(user.balance || 0).toFixed(2);
+    
+    setupNav('cajero-panel', 'cajero-main-content');
+    
+    const logoutBtn = document.querySelector('#cajero-panel .logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+    const pedirMonedasBtn = document.getElementById('pedir-monedas-btn');
+    if (pedirMonedasBtn) pedirMonedasBtn.addEventListener('click', () => showPedirMonedasModal(user.username));
+    
     showView('cajero-main-content', 'vista-jugadores');
 }
 
 async function renderVistaJugadores(cajero) {
     const container = document.getElementById('jugadores-list-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando jugadores...</p>';
     const result = await postData({ action: 'getDashboardData', role: 'Cajero', username: cajero.username });
 
     if (result.status === 'success' && result.data.misJugadores.length > 0) {
-        container.innerHTML = result.data.misJugadores.map(j => `
-            <div class="list-item">
-                <div class="item-info">
-                    <strong>${j.username}</strong>
-                    <span>Saldo: ${parseFloat(j.saldo || 0).toFixed(2)}</span>
-                </div>
-                <div class="item-actions">
-                     <button class="jugador-fichas-btn" data-jugador="${j.username}" data-cajero="${cajero.username}">Gestionar Fichas</button>
-                </div>
-            </div>
-        `).join('');
+        container.innerHTML = result.data.misJugadores.map(j => `<div class="list-item"><div class="item-info"><strong>${j.username}</strong><span>Saldo: ${parseFloat(j.saldo || 0).toFixed(2)}</span></div><div class="item-actions"><button class="jugador-fichas-btn" data-jugador="${j.username}" data-cajero="${cajero.username}">Gestionar Fichas</button></div></div>`).join('');
         document.querySelectorAll('.jugador-fichas-btn').forEach(btn => {
             btn.addEventListener('click', (e) => showGestionarFichasModal(e.target.dataset.jugador, e.target.dataset.cajero));
         });
@@ -484,31 +360,18 @@ async function renderVistaJugadores(cajero) {
 }
 
 function showGestionarFichasModal(jugador, cajero) {
-    const contentHTML = `
-        <form id="fichas-form">
-            <input type="number" id="fichas-monto" placeholder="Monto" required>
-            <button type="button" id="add-fichas-btn">Añadir Fichas a Jugador</button>
-            <button type="button" id="remove-fichas-btn" style="background-color: var(--warning-color);">Retirar Fichas de Jugador</button>
-        </form>`;
+    const contentHTML = `<form id="fichas-form"><input type="number" id="fichas-monto" placeholder="Monto" required><button type="button" id="add-fichas-btn">Añadir Fichas a Jugador</button><button type="button" id="remove-fichas-btn" style="background-color: var(--warning-color);">Retirar Fichas de Jugador</button></form>`;
     showModal(`Gestionar Fichas de ${jugador}`, contentHTML, modal => {
         const montoEl = modal.querySelector('#fichas-monto');
         modal.querySelector('#add-fichas-btn').addEventListener('click', async () => {
             const payload = { cajero, jugador, monto: Number(montoEl.value) };
             const result = await postData({ action: 'gestionarFichasJugador', subaction: 'añadir', payload });
-            alert(result.message);
-            if(result.status === 'success') {
-                closeModal();
-                window.location.reload(); 
-            }
+            alert(result.message); if(result.status === 'success') { closeModal(); window.location.reload(); }
         });
          modal.querySelector('#remove-fichas-btn').addEventListener('click', async () => {
             const payload = { cajero, jugador, monto: Number(montoEl.value) };
             const result = await postData({ action: 'gestionarFichasJugador', subaction: 'retirar', payload });
-            alert(result.message);
-            if(result.status === 'success') {
-                closeModal();
-                window.location.reload();
-            }
+            alert(result.message); if(result.status === 'success') { closeModal(); window.location.reload(); }
         });
     });
 }
@@ -516,30 +379,17 @@ function showGestionarFichasModal(jugador, cajero) {
 
 async function renderVistaMisPeticiones(cajero) {
     const container = document.getElementById('peticiones-list-container');
+    if(!container) return;
     container.innerHTML = '<p>Cargando peticiones...</p>';
     const result = await postData({ action: 'getMisPeticiones', cajero: cajero.username });
 
     if (result.status === 'success' && result.data.length > 0) {
-        container.innerHTML = result.data.map(p => `
-            <div class="list-item">
-                <div class="item-info">
-                    <strong>Monto: ${p.monto.toFixed(2)}</strong>
-                    <span>Estado: ${p.estado}</span>
-                    ${p.mensaje ? `<span>Motivo: ${p.mensaje}</span>` : ''}
-                </div>
-            </div>
-        `).join('');
-    } else {
-        container.innerHTML = '<p>No has realizado peticiones.</p>';
-    }
+        container.innerHTML = result.data.map(p => `<div class="list-item"><div class="item-info"><strong>Monto: ${p.monto.toFixed(2)}</strong><span>Estado: ${p.estado}</span>${p.mensaje ? `<span>Motivo: ${p.mensaje}</span>` : ''}</div></div>`).join('');
+    } else { container.innerHTML = '<p>No has realizado peticiones.</p>'; }
 }
 
 function showPedirMonedasModal(cajeroUsername) {
-    const contentHTML = `
-        <form id="pedir-monedas-form">
-            <input type="number" id="monto-peticion" placeholder="Monto a solicitar" required min="1">
-            <button type="submit">Enviar Petición</button>
-        </form>`;
+    const contentHTML = `<form id="pedir-monedas-form"><input type="number" id="monto-peticion" placeholder="Monto a solicitar" required min="1"><button type="submit">Enviar Petición</button></form>`;
     showModal("Pedir Monedas al Administrador", contentHTML, modal => {
         modal.querySelector('#pedir-monedas-form').addEventListener('submit', async e => {
             e.preventDefault();
@@ -548,7 +398,8 @@ function showPedirMonedasModal(cajeroUsername) {
             alert(result.message);
             if(result.status === 'success') {
                 closeModal();
-                document.querySelector('.nav-btn[data-view="vista-peticiones"]').click();
+                const btn = document.querySelector('.nav-btn[data-view="vista-peticiones"]');
+                if(btn) btn.click();
             }
         });
     });
@@ -560,23 +411,31 @@ function showPedirMonedasModal(cajeroUsername) {
 // ===================================================
 
 function setupJugadorPanel(user) {
-    // 1. Llenar la información estática del usuario
-    document.getElementById('jugador-nombre').textContent = user.username;
-    document.getElementById('jugador-saldo').textContent = parseFloat(user.balance || 0).toFixed(2);
+    // 1. Llenar la información estática del usuario (con protección)
+    const nombreEl = document.getElementById('jugador-nombre');
+    if (nombreEl) nombreEl.textContent = user.username;
     
-    // 2. Configurar botón de logout
-    document.querySelector('#jugador-panel .logout-btn').addEventListener('click', handleLogout);
+    const saldoEl = document.getElementById('jugador-saldo');
+    if (saldoEl) saldoEl.textContent = parseFloat(user.balance || 0).toFixed(2);
+    
+    // 2. Configurar botón de logout (con protección)
+    const logoutBtn = document.querySelector('#jugador-panel .logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    } else {
+        console.error("Elemento no encontrado: Botón de logout del jugador");
+    }
     
     // 3. Configurar la navegación para móviles
     setupJugadorMobileNav();
 
-    // 4. Cargar el contenido dinámico inicial (partidos e historial)
+    // 4. Cargar el contenido dinámico inicial
     renderPartidosDisponibles(user);
     renderHistorialJugador(user.username);
 
     // 5. Iniciar la comprobación de notificaciones
     checkUserNotifications(user.username);
-    setInterval(() => checkUserNotifications(user.username), 60000); // Chequear notificaciones cada minuto
+    setInterval(() => checkUserNotifications(user.username), 60000);
 }
 
 function setupJugadorMobileNav() {
@@ -586,18 +445,10 @@ function setupJugadorMobileNav() {
     navButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const viewId = btn.dataset.view;
-
-            // Gestionar clases 'active' para los botones
             navButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
-            // Mostrar/ocultar las vistas correspondientes
             views.forEach(view => {
-                if (view.id === viewId) {
-                    view.classList.add('active');
-                } else {
-                    view.classList.remove('active');
-                }
+                view.classList.toggle('active', view.id === viewId);
             });
         });
     });
@@ -605,6 +456,7 @@ function setupJugadorMobileNav() {
 
 async function renderPartidosDisponibles(user) {
     const container = document.getElementById('partidos-disponibles-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando partidos...</p>';
     const result = await postData({ action: 'getDashboardData', role: 'Jugador', username: user.username });
     
@@ -614,24 +466,13 @@ async function renderPartidosDisponibles(user) {
                 <h4>${p.local} vs ${p.visitante}</h4>
                 <form class="apuesta-form-v2" data-partido-id="${p.id}">
                     <div class="cuotas-v2">
-                        <div>
-                            <input type="radio" name="apuesta" value="Local" id="p${p.id}-local" required>
-                            <label for="p${p.id}-local">${p.local}<span>${p.cuotaL.toFixed(2)}</span></label>
-                        </div>
-                        <div>
-                            <input type="radio" name="apuesta" value="Empate" id="p${p.id}-empate">
-                            <label for="p${p.id}-empate">Empate<span>${p.cuotaE.toFixed(2)}</span></label>
-                        </div>
-                        <div>
-                            <input type="radio" name="apuesta" value="Visitante" id="p${p.id}-visitante">
-                            <label for="p${p.id}-visitante">${p.visitante}<span>${p.cuotaV.toFixed(2)}</span></label>
-                        </div>
+                        <div><input type="radio" name="apuesta" value="Local" id="p${p.id}-local" required><label for="p${p.id}-local">${p.local}<span>${p.cuotaL.toFixed(2)}</span></label></div>
+                        <div><input type="radio" name="apuesta" value="Empate" id="p${p.id}-empate"><label for="p${p.id}-empate">Empate<span>${p.cuotaE.toFixed(2)}</span></label></div>
+                        <div><input type="radio" name="apuesta" value="Visitante" id="p${p.id}-visitante"><label for="p${p.id}-visitante">${p.visitante}<span>${p.cuotaV.toFixed(2)}</span></label></div>
                     </div>
-                    <input type="number" name="monto" placeholder="Monto" required min="1" step="0.01">
-                    <button type="submit">Apostar</button>
+                    <input type="number" name="monto" placeholder="Monto" required min="1" step="0.01"><button type="submit">Apostar</button>
                 </form>
-            </div>
-        `).join('');
+            </div>`).join('');
 
         container.querySelectorAll('.apuesta-form-v2').forEach(form => {
             form.addEventListener('submit', (e) => handleApuesta(e, user.username));
@@ -653,9 +494,9 @@ async function handleApuesta(e, username) {
 
     if (result.status === 'success') {
         mostrarMensaje('jugador', result.data.message, 'success');
-        document.getElementById('jugador-saldo').textContent = parseFloat(result.data.nuevoSaldo).toFixed(2);
+        const saldoEl = document.getElementById('jugador-saldo');
+        if (saldoEl) saldoEl.textContent = parseFloat(result.data.nuevoSaldo).toFixed(2);
         form.reset();
-        // Actualizar el historial para que la nueva apuesta aparezca inmediatamente
         renderHistorialJugador(username);
     } else {
         mostrarMensaje('jugador', result.message, 'error');
@@ -664,6 +505,7 @@ async function handleApuesta(e, username) {
 
 async function renderHistorialJugador(username) {
     const container = document.getElementById('jugador-historial-container');
+    if (!container) return;
     container.innerHTML = '<p>Cargando historial...</p>';
     const result = await postData({ action: 'getHistorial', username });
 
@@ -674,8 +516,7 @@ async function renderHistorialJugador(username) {
                 <p>Apostaste ${h.monto.toFixed(2)} a <strong>${h.apuestaHecha}</strong></p>
                 <p>Estado: <span class="status">${h.status}</span></p>
                 ${h.status !== 'Pendiente' ? `<p>Resultado: ${h.ganancia.toFixed(2)}</p>` : ''}
-            </div>
-        `).join('');
+            </div>`).join('');
     } else {
         container.innerHTML = '<p>No tienes apuestas en tu historial.</p>';
     }
@@ -685,18 +526,17 @@ async function checkUserNotifications(username) {
     const result = await postData({ action: 'getMisNotificaciones', username });
     if (result.status === 'success' && result.data.length > 0) {
         const container = document.getElementById('user-notifications');
+        if (!container) return;
         result.data.forEach(n => {
             const notifDiv = document.createElement('div');
             notifDiv.className = 'user-alert';
             notifDiv.textContent = n.mensaje;
             container.appendChild(notifDiv);
-            // Ocultar y eliminar después de un tiempo
             setTimeout(() => {
                 notifDiv.style.opacity = '0';
                 setTimeout(() => notifDiv.remove(), 500);
             }, 10000);
         });
-        // Marcar como leídas después de mostrarlas
         await postData({ action: 'marcarNotificacionesLeidas', username });
     }
 }
