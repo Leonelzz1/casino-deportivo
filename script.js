@@ -20,19 +20,27 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
+                mode: 'no-cors', // Esta línea se puede quitar si el backend está bien configurado
+                cache: 'no-cache',
+                redirect: 'follow', // Sigue la redirección de Google
                 body: JSON.stringify(data)
             });
-            // Google Apps Script a veces redirige, así que manejamos eso
-            if (response.redirected) {
-                const textResponse = await (await fetch(response.url)).text();
-                return JSON.parse(textResponse);
+
+            // Como la respuesta de Google tras la redirección no es un JSON directo,
+            // tenemos que leerla como texto y luego convertirla.
+            // Esta es la solución más robusta para el problema de CORS con Apps Script.
+            const textResponse = await response.text();
+            
+            // A veces la respuesta viene vacía si hay un error de red antes de la redirección.
+            if (!textResponse) {
+            throw new Error('La respuesta del servidor está vacía. Puede ser un problema de red o de la implementación del script.');
             }
-            return await response.json();
+
+            return JSON.parse(textResponse);
         } catch (error) {
             console.error('Error en fetch:', error);
-            return { status: 'error', message: 'Error de conexión con el servidor.' };
+            // El error "Unexpected end of JSON input" suele ocurrir aquí si la respuesta es vacía.
+            return { status: 'error', message: 'Error de conexión con el servidor. Revisa la consola (F12) para más detalles.' };
         }
     }
 
