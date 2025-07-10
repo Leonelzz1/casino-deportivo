@@ -1,18 +1,13 @@
-// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.3 (CON CREAR PARTIDO)
+// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.4 (CON CREAR JUGADOR)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTvM78u1Vwgt2s6T507tWQnvqyLp4xz2r7V1ZZ9hjCgpy9BKLdc9i5Q3DxZALgrBi_/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
     const userJSON = sessionStorage.getItem('user');
-    if (userJSON === 'undefined' || userJSON === 'null' || !userJSON) {
-        sessionStorage.removeItem('user');
-    }
+    if (userJSON === 'undefined' || userJSON === 'null' || !userJSON) sessionStorage.removeItem('user');
     try {
         const userData = JSON.parse(sessionStorage.getItem('user'));
-        if (userData && userData.role) {
-            initPanel(userData);
-        } else {
-            showPanel('login-panel');
-        }
+        if (userData && userData.role) initPanel(userData);
+        else showPanel('login-panel');
     } catch (error) {
         console.error("Error al iniciar sesión desde sessionStorage:", error);
         sessionStorage.removeItem('user');
@@ -87,9 +82,7 @@ async function handleLogin(e) {
     if (result.status === 'success' && result.data) {
         sessionStorage.setItem('user', JSON.stringify(result.data));
         window.location.reload();
-    } else {
-        mostrarMensaje('login', result.message || 'Error desconocido.', 'error');
-    }
+    } else { mostrarMensaje('login', result.message || 'Error desconocido.', 'error'); }
 }
 
 function handleLogout() {
@@ -119,31 +112,21 @@ function mostrarMensaje(context, texto, tipo) {
         el.style.display = 'block';
         if (tipo === 'success') el.classList.add('success');
         else if (tipo === 'error') el.classList.add('error');
-        if (tipo !== 'loading' && tipo !== 'error') {
-            setTimeout(() => { el.style.display = 'none'; }, 4000);
-        }
+        if (tipo !== 'loading' && tipo !== 'error') setTimeout(() => { el.style.display = 'none'; }, 4000);
     }
 }
 
-// ==================================================
-//               LÓGICA DEL PANEL DEL JEFE
-// ==================================================
+// LÓGICA DEL PANEL DEL JEFE
 function setupJefePanel() {
     setupNav('jefe-panel', 'jefe-main-content');
-    
     const logoutBtn = document.querySelector('#jefe-panel .logout-btn');
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-
     const peticionesBtn = document.getElementById('peticiones-btn');
     if (peticionesBtn) peticionesBtn.addEventListener('click', showPeticionesModal);
-
     const crearCajeroBtn = document.getElementById('crear-cajero-btn');
     if (crearCajeroBtn) crearCajeroBtn.addEventListener('click', () => showCajeroModal(null));
-
-    // AÑADIDO: Listener para el nuevo botón de crear partido
     const crearPartidoBtn = document.getElementById('crear-partido-btn');
     if (crearPartidoBtn) crearPartidoBtn.addEventListener('click', showCrearPartidoModal);
-
     document.querySelectorAll('#vista-historial .filtro-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('#vista-historial .filtro-btn').forEach(b => b.classList.remove('active'));
@@ -151,42 +134,20 @@ function setupJefePanel() {
             renderVistaHistorialGeneral(btn.dataset.filtro);
         });
     });
-    
     showView('jefe-main-content', 'vista-partidos');
     checkPeticionesNotif();
     setInterval(checkPeticionesNotif, 30000);
 }
 
-// AÑADIDO: Función para mostrar el modal de creación de partido
 function showCrearPartidoModal() {
-    const contentHTML = `
-        <form id="partido-form">
-            <input type="text" id="partido-local" placeholder="Equipo Local" required>
-            <input type="text" id="partido-visitante" placeholder="Equipo Visitante" required>
-            <input type="number" id="partido-cuotaL" placeholder="Cuota Local (ej: 1.85)" required step="0.01" min="1">
-            <input type="number" id="partido-cuotaE" placeholder="Cuota Empate (ej: 3.50)" required step="0.01" min="1">
-            <input type="number" id="partido-cuotaV" placeholder="Cuota Visitante (ej: 4.20)" required step="0.01" min="1">
-            <button type="submit">Crear Partido</button>
-        </form>
-    `;
+    const contentHTML = `<form id="partido-form"><input type="text" id="partido-local" placeholder="Equipo Local" required><input type="text" id="partido-visitante" placeholder="Equipo Visitante" required><input type="number" id="partido-cuotaL" placeholder="Cuota Local (ej: 1.85)" required step="0.01" min="1"><input type="number" id="partido-cuotaE" placeholder="Cuota Empate (ej: 3.50)" required step="0.01" min="1"><input type="number" id="partido-cuotaV" placeholder="Cuota Visitante (ej: 4.20)" required step="0.01" min="1"><button type="submit">Crear Partido</button></form>`;
     showModal('Crear Nuevo Partido', contentHTML, (modal) => {
         modal.querySelector('#partido-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const payload = {
-                local: document.getElementById('partido-local').value,
-                visitante: document.getElementById('partido-visitante').value,
-                cuotaL: Number(document.getElementById('partido-cuotaL').value),
-                cuotaE: Number(document.getElementById('partido-cuotaE').value),
-                cuotaV: Number(document.getElementById('partido-cuotaV').value),
-            };
-            
+            const payload = { local: document.getElementById('partido-local').value, visitante: document.getElementById('partido-visitante').value, cuotaL: Number(document.getElementById('partido-cuotaL').value), cuotaE: Number(document.getElementById('partido-cuotaE').value), cuotaV: Number(document.getElementById('partido-cuotaV').value) };
             const result = await postData({ action: 'crearPartido', payload });
             alert(result.message);
-
-            if (result.status === 'success') {
-                closeModal();
-                renderVistaPartidos(); // Refrescar la lista de partidos
-            }
+            if (result.status === 'success') { closeModal(); renderVistaPartidos(); }
         });
     });
 }

@@ -41,11 +41,21 @@
                 <button class="nav-btn" data-view="vista-historial">Historial General</button>
             </nav>
             <main id="jefe-main-content">
-                <!-- Vistas del Jefe (sin cambios) -->
-                <button id="crear-partido-btn" class="action-btn">Nuevo Partido</button>
-                <section id="vista-partidos" class="view active"><h2>Partidos Creados</h2><div id="partidos-table-container"><p>Cargando partidos...</p></div></section>
-                <section id="vista-cajeros" class="view"><h2>Gestión de Cajeros</h2><button id="crear-cajero-btn" class="action-btn">Nuevo Cajero</button><div id="cajeros-list-container"><p>Cargando cajeros...</p></div></section>
-                <section id="vista-historial" class="view"><h2>Historial de Apuestas</h2><div class="historial-filtros"><button class="filtro-btn active" data-filtro="todas">Todas</button><button class="filtro-btn" data-filtro="pendientes">Pendientes</button><button class="filtro-btn" data-filtro="ganadas">Ganadas</button><button class="filtro-btn" data-filtro="perdidas">Perdidas</button></div><div id="historial-general-container"><p>Cargando historial...</p></div></section>
+                <section id="vista-partidos" class="view active">
+                    <h2>Partidos Creados</h2>
+                    <button id="crear-partido-btn" class="action-btn">Nuevo Partido</button>
+                    <div id="partidos-table-container"><p>Cargando partidos...</p></div>
+                </section>
+                <section id="vista-cajeros" class="view">
+                    <h2>Gestión de Cajeros</h2>
+                    <button id="crear-cajero-btn" class="action-btn">Nuevo Cajero</button>
+                    <div id="cajeros-list-container"><p>Cargando cajeros...</p></div>
+                </section>
+                <section id="vista-historial" class="view">
+                    <h2>Historial de Apuestas</h2>
+                    <div class="historial-filtros"><button class="filtro-btn active" data-filtro="todas">Todas</button><button class="filtro-btn" data-filtro="pendientes">Pendientes</button><button class="filtro-btn" data-filtro="ganadas">Ganadas</button><button class="filtro-btn" data-filtro="perdidas">Perdidas</button></div>
+                    <div id="historial-general-container"><p>Cargando historial...</p></div>
+                </section>
             </main>
         </div>
 
@@ -66,9 +76,20 @@
                 <button class="nav-btn" data-view="vista-peticiones">Mis Peticiones</button>
             </nav>
             <main id="cajero-main-content">
-                <!-- Vistas del Cajero (sin cambios) -->
-                <section id="vista-jugadores" class="view active"><h2>Mis Jugadores</h2><div id="jugadores-list-container"><p>Cargando jugadores...</p></div></section>
-                <section id="vista-peticiones" class="view"><h2>Estado de Mis Peticiones</h2><div id="peticiones-list-container"><p>Cargando peticiones...</p></div></section>
+                <section id="vista-jugadores" class="view active">
+                    <h2>Mis Jugadores</h2>
+                    <!-- BOTÓN AÑADIDO -->
+                    <button id="crear-jugador-btn" class="action-btn">Nuevo Jugador</button>
+                    <div id="jugadores-list-container">
+                        <p>Cargando jugadores...</p>
+                    </div>
+                </section>
+                <section id="vista-peticiones" class="view">
+                    <h2>Estado de Mis Peticiones</h2>
+                    <div id="peticiones-list-container">
+                        <p>Cargando peticiones...</p>
+                    </div>
+                </section>
             </main>
         </div>
 
@@ -80,18 +101,12 @@
                 <h2>Panel de Jugador</h2>
                 <button class="logout-btn">Cerrar Sesión</button>
             </header>
-            
             <div class="jugador-dashboard">
-                <!-- Columna Principal: Partidos para Apostar -->
                 <main id="jugador-main-content" class="jugador-view active">
                     <h3>Partidos Disponibles</h3>
-                    <div id="partidos-disponibles-container">
-                        <p>Cargando partidos...</p>
-                    </div>
+                    <div id="partidos-disponibles-container"><p>Cargando partidos...</p></div>
                     <p id="jugador-mensaje" class="mensaje"></p>
                 </main>
-
-                <!-- Columna Lateral (PC) / Vista Separada (Móvil): Info e Historial -->
                 <aside id="jugador-sidebar" class="jugador-view">
                     <div class="user-info-box">
                         <span id="jugador-nombre"></span>
@@ -100,15 +115,10 @@
                             <strong id="jugador-saldo">0.00</strong>
                         </div>
                     </div>
-                    
                     <h3>Mi Historial de Apuestas</h3>
-                    <div id="jugador-historial-container">
-                        <p>Cargando historial...</p>
-                    </div>
+                    <div id="jugador-historial-container"><p>Cargando historial...</p></div>
                 </aside>
             </div>
-
-            <!-- Navegación exclusiva para Móvil -->
             <nav class="jugador-mobile-nav">
                 <button class="mobile-nav-btn active" data-view="jugador-main-content">Apostar</button>
                 <button class="mobile-nav-btn" data-view="jugador-sidebar">Mi Historial</button>
