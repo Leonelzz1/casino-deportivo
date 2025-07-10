@@ -1,5 +1,5 @@
 // CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 4.1
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzt1ZAqoQtjbwtf813UUb8YGRoT5ycbs6SCNKGe0IbYYfHDiD5dzBA9I9YXsSlPyTEh/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTvM78u1Vwgt2s6T507tWQnvqyLp4xz2r7V1ZZ9hjCgpy9BKLdc9i5Q3DxZALgrBi_/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Limpiamos cualquier sesión potencialmente corrupta al inicio.
