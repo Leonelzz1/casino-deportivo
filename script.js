@@ -286,6 +286,7 @@ async function showPeticionesModal() {
 // ===================================================
 //              LÓGICA DEL PANEL DEL CAJERO
 // ===================================================
+// LÓGICA DEL PANEL DEL CAJERO
 function setupCajeroPanel(user) {
     const usernameEl = document.getElementById('cajero-username');
     if (usernameEl) usernameEl.textContent = user.username;
@@ -300,8 +301,43 @@ function setupCajeroPanel(user) {
 
     const pedirMonedasBtn = document.getElementById('pedir-monedas-btn');
     if (pedirMonedasBtn) pedirMonedasBtn.addEventListener('click', () => showPedirMonedasModal(user.username));
+
+    // AÑADIDO: Listener para el botón de crear jugador
+    const crearJugadorBtn = document.getElementById('crear-jugador-btn');
+    if (crearJugadorBtn) crearJugadorBtn.addEventListener('click', () => showCrearJugadorModal(user.username));
     
     showView('cajero-main-content', 'vista-jugadores');
+}
+
+// AÑADIDO: Función para mostrar el modal de creación de jugador
+function showCrearJugadorModal(cajeroUsername) {
+    const contentHTML = `
+        <form id="jugador-form">
+            <input type="text" id="jugador-username-input" placeholder="Nombre de usuario del jugador" required>
+            <input type="text" id="jugador-password-input" placeholder="Contraseña para el jugador" required>
+            <button type="submit">Crear Jugador</button>
+        </form>
+    `;
+    showModal('Crear Nuevo Jugador', contentHTML, (modal) => {
+        modal.querySelector('#jugador-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                cajero: cajeroUsername,
+                username: document.getElementById('jugador-username-input').value,
+                password: document.getElementById('jugador-password-input').value,
+            };
+            
+            const result = await postData({ action: 'crearJugador', payload });
+            alert(result.message);
+
+            if (result.status === 'success') {
+                closeModal();
+                // Refrescar la lista de jugadores de este cajero
+                const user = JSON.parse(sessionStorage.getItem('user'));
+                renderVistaJugadores(user);
+            }
+        });
+    });
 }
 
 async function renderVistaJugadores(cajero) {
@@ -309,15 +345,12 @@ async function renderVistaJugadores(cajero) {
     if (!container) return;
     container.innerHTML = '<p>Cargando jugadores...</p>';
     const result = await postData({ action: 'getDashboardData', role: 'Cajero', username: cajero.username });
-
     if (result.status === 'success' && result.data.misJugadores.length > 0) {
         container.innerHTML = result.data.misJugadores.map(j => `<div class="list-item"><div class="item-info"><strong>${j.username}</strong><span>Saldo: ${parseFloat(j.saldo || 0).toFixed(2)}</span></div><div class="item-actions"><button class="jugador-fichas-btn" data-jugador="${j.username}" data-cajero="${cajero.username}">Gestionar Fichas</button></div></div>`).join('');
         document.querySelectorAll('.jugador-fichas-btn').forEach(btn => {
             btn.addEventListener('click', (e) => showGestionarFichasModal(e.target.dataset.jugador, e.target.dataset.cajero));
         });
-    } else {
-        container.innerHTML = '<p>No tienes jugadores asignados.</p>';
-    }
+    } else { container.innerHTML = '<p>No tienes jugadores asignados. Haz clic en "Nuevo Jugador" para crear uno.</p>'; }
 }
 
 function showGestionarFichasModal(jugador, cajero) {
