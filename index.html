@@ -8,8 +8,11 @@
 </head>
 <body>
     <div id="app-container">
-        <!-- Panel de Login (Visible al inicio) -->
-        <div id="login-panel" class="panel active">
+        <!-- Contenedor para Notificaciones Globales de Jugador -->
+        <div id="user-notifications" class="user-notifications-container"></div>
+        
+        <!-- Panel de Login -->
+        <div id="login-panel" class="panel">
             <div class="login-box">
                 <h1>Casino Deportivo</h1>
                 <form id="login-form">
@@ -21,102 +24,123 @@
             </div>
         </div>
 
-        <!-- Panel del Jefe (Oculto) -->
+        <!-- ================================================== -->
+        <!--                   PANEL DEL JEFE                   -->
+        <!-- ================================================== -->
         <div id="jefe-panel" class="panel">
-            <header>
-                <h2>Panel del Jefe</h2>
-                <button id="logout-btn-jefe" class="logout-btn">Cerrar Sesión</button>
+            <header class="main-header">
+                <h1>Panel de Administrador</h1>
+                <div>
+                    <button id="peticiones-btn" class="header-btn">Peticiones <span id="peticiones-notif" class="notif-indicator gray"></span></button>
+                    <button class="logout-btn">Cerrar Sesión</button>
+                </div>
             </header>
-            <main>
-                <section class="card">
-                    <h3>Crear Nuevo Partido</h3>
-                    <form id="crear-partido-form">
-                        <input type="text" id="equipo-local" placeholder="Equipo Local" required>
-                        <input type="text" id="equipo-visitante" placeholder="Equipo Visitante" required>
-                        <div class="cuotas-grid">
-                            <input type="number" step="0.01" id="cuota-local" placeholder="Cuota Local (1)" required>
-                            <input type="number" step="0.01" id="cuota-empate" placeholder="Cuota Empate (X)" required>
-                            <input type="number" step="0.01" id="cuota-visitante" placeholder="Cuota Visitante (2)" required>
-                        </div>
-                        <button type="submit">Crear Partido</button>
-                        <p id="jefe-crear-mensaje" class="mensaje"></p>
-                    </form>
+            <nav class="main-nav">
+                <button class="nav-btn active" data-view="vista-partidos">Partidos</button>
+                <button class="nav-btn" data-view="vista-cajeros">Gestionar Cajeros</button>
+                <button class="nav-btn" data-view="vista-historial">Historial General</button>
+            </nav>
+            <main id="jefe-main-content">
+                <!-- Vista de Partidos del Jefe -->
+                <section id="vista-partidos" class="view active">
+                    <h2>Partidos Creados</h2>
+                    <div id="partidos-table-container">
+                        <p>Cargando partidos...</p>
+                    </div>
                 </section>
-                <section class="card">
-                    <h3>Cerrar Partido</h3>
-                    <form id="cerrar-partido-form">
-                        <select id="select-partido-cerrar" required></select>
-                        <select id="select-resultado" required>
-                            <option value="" disabled selected>Seleccionar resultado...</option>
-                            <option value="Local">Gana Local</option>
-                            <option value="Empate">Empate</option>
-                            <option value="Visitante">Gana Visitante</option>
-                        </select>
-                        <button type="submit">Cerrar y Pagar</button>
-                        <p id="jefe-cerrar-mensaje" class="mensaje"></p>
-                    </form>
+                <!-- Vista de Cajeros del Jefe -->
+                <section id="vista-cajeros" class="view">
+                    <h2>Gestión de Cajeros</h2>
+                    <button id="crear-cajero-btn" class="action-btn">Nuevo Cajero</button>
+                    <div id="cajeros-list-container">
+                        <p>Cargando cajeros...</p>
+                    </div>
+                </section>
+                <!-- Vista de Historial General del Jefe -->
+                <section id="vista-historial" class="view">
+                    <h2>Historial de Apuestas</h2>
+                    <div class="historial-filtros">
+                        <button class="filtro-btn active" data-filtro="todas">Todas</button>
+                        <button class="filtro-btn" data-filtro="pendientes">Pendientes</button>
+                        <button class="filtro-btn" data-filtro="ganadas">Ganadas</button>
+                        <button class="filtro-btn" data-filtro="perdidas">Perdidas</button>
+                    </div>
+                    <div id="historial-general-container">
+                        <p>Cargando historial...</p>
+                    </div>
                 </section>
             </main>
         </div>
 
-        <!-- Panel del Cajero (Oculto) -->
+        <!-- =================================================== -->
+        <!--                   PANEL DEL CAJERO                  -->
+        <!-- =================================================== -->
         <div id="cajero-panel" class="panel">
-             <header>
-                <h2>Panel del Cajero</h2>
-                <button id="logout-btn-cajero" class="logout-btn">Cerrar Sesión</button>
+            <header class="main-header">
+                <h1 class="cajero-title">Panel de Cajero (<span id="cajero-username"></span>)</h1>
+                <h2 class="saldo-display">Saldo: <span id="cajero-saldo"></span></h2>
+                <div>
+                    <button id="pedir-monedas-btn" class="header-btn">Pedir Monedas</button>
+                    <button class="logout-btn">Cerrar Sesión</button>
+                </div>
             </header>
-            <main>
-                <section class="card">
-                    <h3>Crear Nuevo Jugador</h3>
-                    <form id="crear-jugador-form">
-                        <input type="text" id="nuevo-usuario" placeholder="Nombre de usuario" required>
-                        <input type="text" id="nueva-contra" placeholder="Contraseña" required>
-                        <input type="number" id="saldo-inicial" placeholder="Saldo inicial" required>
-                        <button type="submit">Crear Jugador</button>
-                        <p id="cajero-crear-mensaje" class="mensaje"></p>
-                    </form>
+            <nav class="main-nav">
+                <button class="nav-btn active" data-view="vista-jugadores">Gestionar Jugadores</button>
+                <button class="nav-btn" data-view="vista-peticiones">Mis Peticiones</button>
+            </nav>
+            <main id="cajero-main-content">
+                <!-- Vista de Jugadores del Cajero -->
+                <section id="vista-jugadores" class="view active">
+                    <h2>Mis Jugadores</h2>
+                    <div id="jugadores-list-container">
+                        <p>Cargando jugadores...</p>
+                    </div>
                 </section>
-                <section class="card">
-                    <h3>Cargar Fichas</h3>
-                    <form id="cargar-fichas-form">
-                        <select id="select-mis-jugadores" required></select>
-                        <input type="number" id="monto-carga" placeholder="Monto a cargar" required>
-                        <button type="submit">Cargar Fichas</button>
-                        <p id="cajero-cargar-mensaje" class="mensaje"></p>
-                    </form>
+                <!-- Vista de Peticiones del Cajero -->
+                <section id="vista-peticiones" class="view">
+                    <h2>Estado de Mis Peticiones</h2>
+                    <div id="peticiones-list-container">
+                        <p>Cargando peticiones...</p>
+                    </div>
                 </section>
             </main>
         </div>
 
-        <!-- Panel del Jugador (Oculto) -->
+        <!-- =================================================== -->
+        <!--                  PANEL DEL JUGADOR                  -->
+        <!-- =================================================== -->
         <div id="jugador-panel" class="panel">
-            <header>
+            <header class="main-header">
                 <h2>Bienvenido, <span id="jugador-nombre"></span></h2>
                 <div class="saldo-display">Saldo: <span id="jugador-saldo"></span></div>
                 <button id="ver-historial-btn" class="historial-btn">Ver Historial</button>
-                <button id="logout-btn-jugador" class="logout-btn">Cerrar Sesión</button>
+                <button class="logout-btn">Cerrar Sesión</button>
             </header>
             <main>
                 <h3>Partidos Disponibles</h3>
                 <div class="carousel-container">
                     <div id="partidos-carousel" class="carousel">
-                        <!-- Las tarjetas de partido se insertarán aquí -->
+                        <p>Cargando partidos...</p>
                     </div>
                 </div>
                  <p id="jugador-mensaje" class="mensaje"></p>
             </main>
-            
+            <!-- Historial del Jugador (Superpuesto) -->
             <section id="historial-section" class="historial-container">
                 <div class="historial-header">
                     <h3>Mi Historial de Apuestas</h3>
                     <button id="cerrar-historial-btn">×</button>
                 </div>
                 <div id="historial-lista">
-                    <!-- Los items del historial se insertarán aquí -->
+                    <p>Cargando historial...</p>
                 </div>
             </section>
         </div>
     </div>
+
+    <!-- Contenedor Universal de Modales (Pop-ups) -->
+    <div id="modal-container" class="modal-backdrop"></div>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,53 +1,58 @@
+/* ESTILOS COMPLETOS - VERSIÓN 4.1 */
 :root {
     --bg-dark: #1F2937; --bg-card: #374151; --text-primary: #F9FAFB;
     --text-secondary: #9CA3AF; --accent-primary: #3B82F6; --accent-secondary: #10B981;
-    --border-color: #4B5563; --error-color: #EF4444; --success-color: #22C55E;
+    --border-color: #4B5563; --error-color: #EF4444; --success-color: #22C55E; --warning-color: #FBBF24;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { background-color: var(--bg-dark); color: var(--text-primary); }
 .panel { display: none; }
 .panel.active { display: block; }
+
+/* LAYOUT PRINCIPAL */
 #login-panel.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 .login-box { background-color: var(--bg-card); padding: 2.5rem; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border-color); }
-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 1.5rem; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); gap: 1rem;}
-main { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
-.card { background-color: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); }
+.main-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 1.5rem; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); gap: 1rem; }
+.main-nav { display: flex; background-color: var(--bg-card); padding: 0 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border-color); }
+.nav-btn { background: none; border: none; color: var(--text-secondary); padding: 1rem 0.5rem; cursor: pointer; border-bottom: 3px solid transparent; border-radius: 0; margin:0; }
+.nav-btn.active, .nav-btn:hover { color: var(--text-primary); border-bottom-color: var(--accent-primary); }
+.view { display: none; padding: 1.5rem; }
+.view.active { display: block; }
+
+/* ELEMENTOS COMUNES */
 input, select, button { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-dark); color: var(--text-primary); font-size: 1rem; }
 button { background-color: var(--accent-primary); border: none; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
 button:hover { background-color: #2563EB; }
+.header-btn { width: auto; background-color: var(--accent-secondary); }
 .logout-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--error-color); margin-left: auto; }
-.cuotas-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-.carousel-container { overflow-x: auto; padding-bottom: 1rem; }
-.carousel { display: flex; gap: 1rem; padding: 0.5rem; }
-.match-card { flex: 0 0 300px; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-.match-info { text-align: center; }
-.match-teams { font-size: 1.1rem; font-weight: bold; }
-.bet-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
-.bet-btn { background-color: var(--bg-dark); border: 1px solid var(--border-color); padding: 0.75rem 0.5rem; text-align: center; cursor: pointer; transition: background-color 0.2s; }
-.bet-btn:hover { background-color: #4B5563; }
-.bet-type { color: var(--text-secondary); font-size: 0.9rem; }
-.bet-cuota { font-size: 1.2rem; font-weight: bold; }
-.apuesta-monto-input { text-align: center; }
 .mensaje { display: none; padding: 0.75rem; margin-top: 1rem; border-radius: 6px; }
 .mensaje.success { display: block; background-color: var(--success-color); color: white; }
 .mensaje.error { display: block; background-color: var(--error-color); color: white; }
-.historial-btn { width: auto; padding: 0.5rem 1rem; background-color: var(--accent-secondary); margin: 0; }
-.historial-btn:hover { background-color: #059669; }
-.historial-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(31, 41, 55, 0.95); z-index: 100; padding: 1.5rem; overflow-y: auto; }
-.historial-container.visible { display: block; }
-.historial-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-#cerrar-historial-btn { background: none; border: none; color: var(--text-primary); font-size: 2rem; font-weight: bold; cursor: pointer; padding: 0; margin: 0; line-height: 1; width: auto; }
-.historial-item { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; }
-.historial-info h4 { margin-bottom: 0.5rem; }
-.historial-cuotas { display: flex; gap: 1rem; font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
-.cuota.ganada { color: var(--success-color); font-weight: bold; }
-.cuota.perdida { color: var(--error-color); font-weight: bold; text-decoration: line-through; }
-.historial-resultado { text-align: right; }
-.status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
-.status-indicator.ganada { background-color: var(--success-color); }
-.status-indicator.perdida { background-color: var(--error-color); }
-.status-indicator.pendiente { background-color: #FBBF24; }
-.ganancia-valor { font-size: 1.2rem; font-weight: bold; }
-.ganancia-valor.ganada { color: var(--success-color); }
-.ganancia-valor.perdida { color: var(--error-color); }
-@media (max-width: 600px) { .cuotas-grid { grid-template-columns: 1fr; } .match-card { flex: 0 0 80vw; } }
+.notif-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 5px; background-color: gray; }
+.notif-indicator.green { background-color: var(--success-color); }
+
+/* TABLAS Y LISTAS */
+.data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.data-table th, .data-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+.data-table th { background-color: var(--bg-dark); }
+.data-table tr:hover { background-color: #4B5563; cursor: pointer; }
+.list-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: var(--bg-dark); border-radius: 6px; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+.item-info { flex-grow: 1; }
+.item-actions { display: flex; gap: 0.5rem; }
+.item-actions button { width: auto; padding: 0.5rem 0.75rem; }
+
+/* MODALES */
+.modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; padding: 1rem; }
+.modal-backdrop.visible { display: flex; }
+.modal-content { background-color: var(--bg-card); padding: 2rem; border-radius: 8px; max-width: 90%; width: 700px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.modal-header h3 { margin: 0; }
+.close-modal-btn { background: none; border: none; font-size: 1.5rem; color: white; cursor: pointer; width: auto; padding: 0; margin: 0; }
+.apostadores-list { margin-top: 1rem; }
+.apostadores-list h4 { margin-bottom: 0.5rem; }
+.apostadores-list p { padding: 0.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; }
+.apostadores-list p:last-child { border: none; }
+
+/* NOTIFICACIONES DE USUARIO */
+.user-notifications-container { position: fixed; top: 1rem; right: 1rem; z-index: 300; display: flex; flex-direction: column; gap: 0.5rem; max-width: 350px; }
+.user-alert { background-color: var(--accent-primary); color: white; padding: 1rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
