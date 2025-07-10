@@ -1,4 +1,4 @@
-// CÓDIGO COMPLETO, CORREGIDO Y FUNCIONAL - VERSIÓN 5.0
+// CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 5.1 (PANEL DE JUGADOR REDISEÑADO)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTvM78u1Vwgt2s6T507tWQnvqyLp4xz2r7V1ZZ9hjCgpy9BKLdc9i5Q3DxZALgrBi_/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -45,7 +45,7 @@ async function postData(data) {
     }
 }
 
-// --- SETUP INICIAL DE PANELES Y NAVEGACIÓN (CORREGIDO) ---
+// --- SETUP INICIAL DE PANELES Y NAVEGACIÓN ---
 function initPanel(user) {
     if (user.role === 'Jefe') setupJefePanel();
     else if (user.role === 'Cajero') setupCajeroPanel(user);
@@ -461,7 +461,6 @@ function setupCajeroPanel(user) {
 async function renderVistaJugadores(cajero) {
     const container = document.getElementById('jugadores-list-container');
     container.innerHTML = '<p>Cargando jugadores...</p>';
-    // Usamos getDashboardData que ya está optimizado para esto
     const result = await postData({ action: 'getDashboardData', role: 'Cajero', username: cajero.username });
 
     if (result.status === 'success' && result.data.misJugadores.length > 0) {
@@ -499,7 +498,7 @@ function showGestionarFichasModal(jugador, cajero) {
             alert(result.message);
             if(result.status === 'success') {
                 closeModal();
-                window.location.reload(); // Recargar para ver saldos actualizados
+                window.location.reload(); 
             }
         });
          modal.querySelector('#remove-fichas-btn').addEventListener('click', async () => {
@@ -508,7 +507,7 @@ function showGestionarFichasModal(jugador, cajero) {
             alert(result.message);
             if(result.status === 'success') {
                 closeModal();
-                window.location.reload(); // Recargar para ver saldos actualizados
+                window.location.reload();
             }
         });
     });
@@ -549,7 +548,6 @@ function showPedirMonedasModal(cajeroUsername) {
             alert(result.message);
             if(result.status === 'success') {
                 closeModal();
-                // Opcional: cambiar a la vista de peticiones
                 document.querySelector('.nav-btn[data-view="vista-peticiones"]').click();
             }
         });
@@ -558,45 +556,76 @@ function showPedirMonedasModal(cajeroUsername) {
 
 
 // ===================================================
-//              LÓGICA DEL PANEL DEL JUGADOR
+//        LÓGICA DEL PANEL DEL JUGADOR (RENOVADA)
 // ===================================================
 
 function setupJugadorPanel(user) {
+    // 1. Llenar la información estática del usuario
     document.getElementById('jugador-nombre').textContent = user.username;
     document.getElementById('jugador-saldo').textContent = parseFloat(user.balance || 0).toFixed(2);
     
+    // 2. Configurar botón de logout
     document.querySelector('#jugador-panel .logout-btn').addEventListener('click', handleLogout);
     
-    // Botón de historial
-    const historialSection = document.getElementById('historial-section');
-    document.getElementById('ver-historial-btn').addEventListener('click', () => {
-        renderHistorialJugador(user.username);
-        historialSection.classList.add('visible');
-    });
-    document.getElementById('cerrar-historial-btn').addEventListener('click', () => {
-        historialSection.classList.remove('visible');
-    });
+    // 3. Configurar la navegación para móviles
+    setupJugadorMobileNav();
 
-    // Carga inicial
+    // 4. Cargar el contenido dinámico inicial (partidos e historial)
     renderPartidosDisponibles(user);
+    renderHistorialJugador(user.username);
+
+    // 5. Iniciar la comprobación de notificaciones
     checkUserNotifications(user.username);
     setInterval(() => checkUserNotifications(user.username), 60000); // Chequear notificaciones cada minuto
 }
 
+function setupJugadorMobileNav() {
+    const navButtons = document.querySelectorAll('.mobile-nav-btn');
+    const views = document.querySelectorAll('.jugador-view');
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const viewId = btn.dataset.view;
+
+            // Gestionar clases 'active' para los botones
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Mostrar/ocultar las vistas correspondientes
+            views.forEach(view => {
+                if (view.id === viewId) {
+                    view.classList.add('active');
+                } else {
+                    view.classList.remove('active');
+                }
+            });
+        });
+    });
+}
+
 async function renderPartidosDisponibles(user) {
-    const container = document.getElementById('partidos-carousel');
+    const container = document.getElementById('partidos-disponibles-container');
     container.innerHTML = '<p>Cargando partidos...</p>';
     const result = await postData({ action: 'getDashboardData', role: 'Jugador', username: user.username });
     
     if (result.status === 'success' && result.data.partidos.length > 0) {
         container.innerHTML = result.data.partidos.map(p => `
-            <div class="partido-card">
+            <div class="partido-card-v2">
                 <h4>${p.local} vs ${p.visitante}</h4>
-                <form class="apuesta-form" data-partido-id="${p.id}">
-                    <div class="cuotas">
-                        <label><input type="radio" name="apuesta" value="Local" required> ${p.local} (${p.cuotaL})</label>
-                        <label><input type="radio" name="apuesta" value="Empate"> Empate (${p.cuotaE})</label>
-                        <label><input type="radio" name="apuesta" value="Visitante"> ${p.visitante} (${p.cuotaV})</label>
+                <form class="apuesta-form-v2" data-partido-id="${p.id}">
+                    <div class="cuotas-v2">
+                        <div>
+                            <input type="radio" name="apuesta" value="Local" id="p${p.id}-local" required>
+                            <label for="p${p.id}-local">${p.local}<span>${p.cuotaL.toFixed(2)}</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="apuesta" value="Empate" id="p${p.id}-empate">
+                            <label for="p${p.id}-empate">Empate<span>${p.cuotaE.toFixed(2)}</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="apuesta" value="Visitante" id="p${p.id}-visitante">
+                            <label for="p${p.id}-visitante">${p.visitante}<span>${p.cuotaV.toFixed(2)}</span></label>
+                        </div>
                     </div>
                     <input type="number" name="monto" placeholder="Monto" required min="1" step="0.01">
                     <button type="submit">Apostar</button>
@@ -604,8 +633,8 @@ async function renderPartidosDisponibles(user) {
             </div>
         `).join('');
 
-        container.querySelectorAll('.apuesta-form').forEach(form => {
-            form.addEventListener('submit', async (e) => handleApuesta(e, user.username));
+        container.querySelectorAll('.apuesta-form-v2').forEach(form => {
+            form.addEventListener('submit', (e) => handleApuesta(e, user.username));
         });
     } else {
         container.innerHTML = '<p>No hay partidos disponibles para apostar en este momento.</p>';
@@ -626,22 +655,24 @@ async function handleApuesta(e, username) {
         mostrarMensaje('jugador', result.data.message, 'success');
         document.getElementById('jugador-saldo').textContent = parseFloat(result.data.nuevoSaldo).toFixed(2);
         form.reset();
+        // Actualizar el historial para que la nueva apuesta aparezca inmediatamente
+        renderHistorialJugador(username);
     } else {
         mostrarMensaje('jugador', result.message, 'error');
     }
 }
 
 async function renderHistorialJugador(username) {
-    const container = document.getElementById('historial-lista');
+    const container = document.getElementById('jugador-historial-container');
     container.innerHTML = '<p>Cargando historial...</p>';
     const result = await postData({ action: 'getHistorial', username });
 
     if (result.status === 'success' && result.data.length > 0) {
         container.innerHTML = result.data.map(h => `
-            <div class="historial-item ${h.status.toLowerCase()}">
+            <div class="historial-item-v2 ${h.status.toLowerCase()}">
                 <p><strong>${h.partido}</strong></p>
                 <p>Apostaste ${h.monto.toFixed(2)} a <strong>${h.apuestaHecha}</strong></p>
-                <p>Estado: ${h.status}</p>
+                <p>Estado: <span class="status">${h.status}</span></p>
                 ${h.status !== 'Pendiente' ? `<p>Resultado: ${h.ganancia.toFixed(2)}</p>` : ''}
             </div>
         `).join('');
