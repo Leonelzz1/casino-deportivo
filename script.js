@@ -286,7 +286,8 @@ async function showPeticionesModal() {
 // ===================================================
 //              LÓGICA DEL PANEL DEL CAJERO
 // ===================================================
-// LÓGICA DEL PANEL DEL CAJERO
+// --- LÓGICA DEL PANEL DEL CAJERO ---
+
 function setupCajeroPanel(user) {
     const usernameEl = document.getElementById('cajero-username');
     if (usernameEl) usernameEl.textContent = user.username;
@@ -302,14 +303,17 @@ function setupCajeroPanel(user) {
     const pedirMonedasBtn = document.getElementById('pedir-monedas-btn');
     if (pedirMonedasBtn) pedirMonedasBtn.addEventListener('click', () => showPedirMonedasModal(user.username));
 
-    // AÑADIDO: Listener para el botón de crear jugador
+    // VERIFICA ESTA PARTE: Se añade el listener al botón "crear-jugador-btn"
     const crearJugadorBtn = document.getElementById('crear-jugador-btn');
-    if (crearJugadorBtn) crearJugadorBtn.addEventListener('click', () => showCrearJugadorModal(user.username));
+    if (crearJugadorBtn) {
+        crearJugadorBtn.addEventListener('click', () => showCrearJugadorModal(user.username));
+    }
     
     showView('cajero-main-content', 'vista-jugadores');
 }
 
-// AÑADIDO: Función para mostrar el modal de creación de jugador
+
+// VERIFICA ESTA FUNCIÓN COMPLETA: Es la que crea el modal
 function showCrearJugadorModal(cajeroUsername) {
     const contentHTML = `
         <form id="jugador-form">
@@ -327,12 +331,13 @@ function showCrearJugadorModal(cajeroUsername) {
                 password: document.getElementById('jugador-password-input').value,
             };
             
+            // Llama a la acción 'crearJugador' en el backend
             const result = await postData({ action: 'crearJugador', payload });
             alert(result.message);
 
             if (result.status === 'success') {
                 closeModal();
-                // Refrescar la lista de jugadores de este cajero
+                // Refresca la lista de jugadores para mostrar el nuevo
                 const user = JSON.parse(sessionStorage.getItem('user'));
                 renderVistaJugadores(user);
             }
