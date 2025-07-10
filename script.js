@@ -1,31 +1,31 @@
 // CÓDIGO COMPLETO Y VERIFICADO - VERSIÓN 4.1
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzt1ZAqoQtjbwtf813UUb8YGRoT5ycbs6SCNKGe0IbYYfHDiD5dzBA9I9YXsSlPyTEh/exec';
 
-// --- BLOQUE DE INICIO A PRUEBA DE FALLOS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Escucha el evento de login
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
-    
-    // Intenta iniciar el panel del usuario
+    // 1. Limpiamos cualquier sesión potencialmente corrupta al inicio.
+    // Esto previene que el error ocurra si el usuario recarga la página.
+    const userJSON = sessionStorage.getItem('user');
+    if (userJSON === 'undefined' || userJSON === 'null' || !userJSON) {
+        sessionStorage.removeItem('user');
+    }
+
+    // 2. Intentamos parsear SÓLO si estamos seguros de que no está corrupto.
     try {
-        const userJSON = sessionStorage.getItem('user');
-        // La condición más segura: si no hay JSON o si es la cadena literal "undefined", no hacemos nada y dejamos el panel de login.
-        if (userJSON && userJSON !== 'undefined' && userJSON !== 'null') {
-            const user = JSON.parse(userJSON);
-            if (user && user.role) {
-                initPanel(user); // Si todo es correcto, inicializa el panel del usuario
-            } else {
-                throw new Error("Datos de sesión inválidos.");
-            }
+        const userData = JSON.parse(sessionStorage.getItem('user'));
+        // Si el parseo es exitoso y tenemos un rol, inicializamos el panel.
+        if (userData && userData.role) {
+            initPanel(userData);
         } else {
-             showPanel('login-panel'); // Muestra el login por defecto
+            // Si no hay datos de usuario, mostramos el login.
+            showPanel('login-panel');
         }
     } catch (error) {
-        // Si CUALQUIER COSA falla, limpiamos y mostramos el login.
-        console.error("Fallo crítico al iniciar, reseteando sesión:", error);
-        sessionStorage.removeItem('user');
+        // Si el parseo falla por cualquier motivo, mostramos el login.
         showPanel('login-panel');
     }
+    
+    // 3. Añadimos el listener para el formulario de login.
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
 });
 
 
