@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casino Deportivo</title>
+    <title>Casino Interactivo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app-container">
-        <!-- Contenedor para Notificaciones Globales de Jugador -->
-        <div id="user-notifications" class="user-notifications-container"></div>
-        
         <!-- Panel de Login -->
         <div id="login-panel" class="panel">
             <div class="login-box">
-                <h1>Casino Deportivo</h1>
+                <h1>Casino Interactivo</h1>
                 <form id="login-form">
                     <input type="text" id="username" placeholder="Usuario" required>
                     <input type="password" id="password" placeholder="Contraseña" required>
@@ -30,31 +27,24 @@
         <div id="jefe-panel" class="panel">
             <header class="main-header">
                 <h1>Panel de Administrador</h1>
-                <div>
-                    <button id="peticiones-btn" class="header-btn">Peticiones <span id="peticiones-notif" class="notif-indicator gray"></span></button>
-                    <button class="logout-btn">Cerrar Sesión</button>
-                </div>
+                <button class="logout-btn">Cerrar Sesión</button>
             </header>
             <nav class="main-nav">
-                <button class="nav-btn active" data-view="vista-partidos">Partidos</button>
+                <!-- Vistas de partidos eliminadas -->
+                <button class="nav-btn active" data-view="vista-quiz">Juego Quiz</button>
                 <button class="nav-btn" data-view="vista-cajeros">Gestionar Cajeros</button>
-                <button class="nav-btn" data-view="vista-historial">Historial General</button>
+                <!-- Historial general también podría ser eliminado o adaptado -->
             </nav>
             <main id="jefe-main-content">
-                <section id="vista-partidos" class="view active">
-                    <h2>Partidos Creados</h2>
-                    <button id="crear-partido-btn" class="action-btn">Nuevo Partido</button>
-                    <div id="partidos-table-container"><p>Cargando partidos...</p></div>
+                <section id="vista-quiz" class="view active">
+                    <h2>Jugadores en el Quiz</h2>
+                    <p>Esta es una lista de los jugadores actualmente cargados en la hoja 'QuizJugadores' de Google Sheets.</p>
+                    <div id="quiz-players-container"><p>Cargando jugadores...</p></div>
                 </section>
                 <section id="vista-cajeros" class="view">
                     <h2>Gestión de Cajeros</h2>
                     <button id="crear-cajero-btn" class="action-btn">Nuevo Cajero</button>
                     <div id="cajeros-list-container"><p>Cargando cajeros...</p></div>
-                </section>
-                <section id="vista-historial" class="view">
-                    <h2>Historial de Apuestas</h2>
-                    <div class="historial-filtros"><button class="filtro-btn active" data-filtro="todas">Todas</button><button class="filtro-btn" data-filtro="pendientes">Pendientes</button><button class="filtro-btn" data-filtro="ganadas">Ganadas</button><button class="filtro-btn" data-filtro="perdidas">Perdidas</button></div>
-                    <div id="historial-general-container"><p>Cargando historial...</p></div>
                 </section>
             </main>
         </div>
@@ -78,51 +68,65 @@
             <main id="cajero-main-content">
                 <section id="vista-jugadores" class="view active">
                     <h2>Mis Jugadores</h2>
-                    <!-- BOTÓN AÑADIDO -->
                     <button id="crear-jugador-btn" class="action-btn">Nuevo Jugador</button>
-                    <div id="jugadores-list-container">
-                        <p>Cargando jugadores...</p>
-                    </div>
+                    <div id="jugadores-list-container"><p>Cargando jugadores...</p></div>
                 </section>
                 <section id="vista-peticiones" class="view">
                     <h2>Estado de Mis Peticiones</h2>
-                    <div id="peticiones-list-container">
-                        <p>Cargando peticiones...</p>
-                    </div>
+                    <div id="peticiones-list-container"><p>Cargando peticiones...</p></div>
                 </section>
             </main>
         </div>
 
         <!-- =================================================== -->
-        <!--          PANEL DEL JUGADOR (NUEVO DISEÑO)           -->
+        <!--                  PANEL DEL JUGADOR                  -->
         <!-- =================================================== -->
         <div id="jugador-panel" class="panel">
             <header class="main-header">
-                <h2>Panel de Jugador</h2>
-                <button class="logout-btn">Cerrar Sesión</button>
+                <h2>Hola, <span id="jugador-nombre"></span>!</h2>
+                <div>
+                    <strong>Saldo: <span id="jugador-saldo">0.00</span></strong>
+                    <button class="logout-btn">Cerrar Sesión</button>
+                </div>
             </header>
-            <div class="jugador-dashboard">
-                <main id="jugador-main-content" class="jugador-view active">
-                    <h3>Partidos Disponibles</h3>
-                    <div id="partidos-disponibles-container"><p>Cargando partidos...</p></div>
-                    <p id="jugador-mensaje" class="mensaje"></p>
-                </main>
-                <aside id="jugador-sidebar" class="jugador-view">
-                    <div class="user-info-box">
-                        <span id="jugador-nombre"></span>
-                        <div class="saldo-display-v2">
-                            <span>Saldo Actual</span>
-                            <strong id="jugador-saldo">0.00</strong>
-                        </div>
+            <main id="jugador-main-content">
+                <div id="quiz-container">
+                    <!-- Pantalla 1: Configuración del Juego -->
+                    <div id="quiz-setup-screen" class="quiz-screen active">
+                        <h3>Adivina el Jugador</h3>
+                        <p id="quiz-mensaje" class="mensaje"></p>
+                        <form id="quiz-start-form">
+                            <div class="form-group">
+                                <label for="quiz-bet-amount">¿Cuánto quieres apostar?</label>
+                                <input type="number" id="quiz-bet-amount" placeholder="Monto" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="quiz-player-count">¿Cuántos jugadores crees que puedes adivinar?</label>
+                                <input type="number" id="quiz-player-count" placeholder="Cantidad de jugadores" required min="1" max="10">
+                            </div>
+                            <div id="cuota-preview">Tu cuota será: <span>1.00</span>x</div>
+                            <button type="submit">¡Empezar a Jugar!</button>
+                        </form>
                     </div>
-                    <h3>Mi Historial de Apuestas</h3>
-                    <div id="jugador-historial-container"><p>Cargando historial...</p></div>
-                </aside>
-            </div>
-            <nav class="jugador-mobile-nav">
-                <button class="mobile-nav-btn active" data-view="jugador-main-content">Apostar</button>
-                <button class="mobile-nav-btn" data-view="jugador-sidebar">Mi Historial</button>
-            </nav>
+
+                    <!-- Pantalla 2: El Juego en Sí -->
+                    <div id="quiz-game-screen" class="quiz-screen">
+                        <h3>¿Quién es este jugador?</h3>
+                        <div class="game-stats">
+                            <div class="stat-item" id="quiz-progress">Jugador 1 / 5</div>
+                            <div class="stat-item" id="quiz-timer">Tiempo: <strong>30</strong>s</div>
+                        </div>
+                        <div class="player-image-container">
+                            <img id="quiz-player-image" src="" alt="Jugador a adivinar">
+                        </div>
+                        <form id="quiz-answer-form">
+                            <input type="text" id="quiz-answer-input" placeholder="Escribe el nombre del jugador" required autocomplete="off">
+                            <button type="submit">Comprobar</button>
+                        </form>
+                        <div id="quiz-feedback" class="feedback"></div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
